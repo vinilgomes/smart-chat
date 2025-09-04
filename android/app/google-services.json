@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "602066542171",
+    "project_id": "smart-chat-pd",
+    "storage_bucket": "smart-chat-pd.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:602066542171:android:17a12120cdf33af360a97e",
+        "android_client_info": {
+          "package_name": "br.com.pdcase.smartchat"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCNdsp8dFICyURvJcGNFeE0EUKbe3jrx9I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

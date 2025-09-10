@@ -480,7 +480,7 @@ bool? validateFileTypes(FFUploadedFile file) {
   final extension = fileName.split('.').last.toLowerCase();
 
   // Lista de extensões válidas
-  const validExtensions = ['pdf', 'txt', 'md', 'docx'];
+  const validExtensions = ['pdf', 'txt', 'md'];
 
   // Retorna se a extensão está na lista
   return validExtensions.contains(extension);
@@ -625,4 +625,28 @@ List<ThreadMessageStruct> buildThreadMessageList(
   }
 
   return contents;
+}
+
+String? supportMessage(
+  UsersRecord? userInfo,
+  ParamsRecord? instance,
+  PromptRecord? prompt,
+  String text,
+) {
+  String result = "";
+
+  if (userInfo != null) {
+    result += "🧑‍💼 " + userInfo.displayName + " <" + userInfo.email + ">\n";
+  }
+
+  if (instance != null) {
+    result +=
+        "🏢 " + instance.instanceName + " <" + instance.reference.id + ">\n";
+  }
+  if (prompt != null) {
+    result += "⚙️ " + prompt.promptName + " <" + prompt.reference.id + ">\n";
+  }
+  result += "\n" + text;
+
+  return result;
 }

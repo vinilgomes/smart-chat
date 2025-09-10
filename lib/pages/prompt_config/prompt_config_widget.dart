@@ -2055,7 +2055,7 @@ class _PromptConfigWidgetState extends State<PromptConfigWidget> {
                                                                     (alertDialogContext) {
                                                                   return AlertDialog(
                                                                     title: Text(
-                                                                        'Formato inválido'),
+                                                                        'Formato inválido. Somente PDF, TXT e MD.'),
                                                                     content: Text(
                                                                         'O arquivo ${functions.getFileName(currentLoop1Item)} não possui os formatos aceitos: pdf, txt, md.'),
                                                                     actions: [

@@ -3800,6 +3800,8 @@ class NEightNPDGroup {
       CreateResponseOpenAICall();
   static SendMailCall sendMailCall = SendMailCall();
   static RunFunctionCallCall runFunctionCallCall = RunFunctionCallCall();
+  static SendTelegramMessageCall sendTelegramMessageCall =
+      SendTelegramMessageCall();
 }
 
 class ChatCompletionCall {
@@ -4086,6 +4088,36 @@ class RunFunctionCallCall {
     return ApiManager.instance.makeApiCall(
       callName: 'runFunctionCall',
       apiUrl: '${baseUrl}/runFunctionCall',
+      callType: ApiCallType.POST,
+      headers: {
+        'Authorization': '9bd2872d-bcc7-47be-b836-af1f5bea57f1',
+      },
+      params: {},
+      body: ffApiRequestBody,
+      bodyType: BodyType.JSON,
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+}
+
+class SendTelegramMessageCall {
+  Future<ApiCallResponse> call({
+    String? message = '',
+  }) async {
+    final baseUrl = NEightNPDGroup.getBaseUrl();
+
+    final ffApiRequestBody = '''
+{
+  "message": "${escapeStringForJson(message)}"
+}''';
+    return ApiManager.instance.makeApiCall(
+      callName: 'Send Telegram Message',
+      apiUrl: '${baseUrl}/sendTelegramMessage',
       callType: ApiCallType.POST,
       headers: {
         'Authorization': '9bd2872d-bcc7-47be-b836-af1f5bea57f1',

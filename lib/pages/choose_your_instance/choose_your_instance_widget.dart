@@ -11,6 +11,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'choose_your_instance_model.dart';
 export 'choose_your_instance_model.dart';
 
@@ -85,6 +86,8 @@ class _ChooseYourInstanceWidgetState extends State<ChooseYourInstanceWidget> {
         if (_model.access?.length == 1) {
           _model.instance = await ParamsRecord.getDocumentOnce(
               _model.access!.firstOrNull!.instanceId!);
+          FFAppState().instanceId = _model.instance!.instanceId;
+          safeSetState(() {});
 
           context.pushNamed(
             ChatWidget.routeName,
@@ -120,6 +123,8 @@ class _ChooseYourInstanceWidgetState extends State<ChooseYourInstanceWidget> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<FFAppState>();
+
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();

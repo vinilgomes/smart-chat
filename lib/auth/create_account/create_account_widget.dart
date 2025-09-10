@@ -8,7 +8,6 @@ import '/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
 import 'create_account_model.dart';
 export 'create_account_model.dart';
 
@@ -79,8 +78,6 @@ class _CreateAccountWidgetState extends State<CreateAccountWidget>
 
   @override
   Widget build(BuildContext context) {
-    context.watch<FFAppState>();
-
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
@@ -639,15 +636,8 @@ class _CreateAccountWidgetState extends State<CreateAccountWidget>
                                       }
 
                                       context.pushNamedAuth(
-                                        ChooseYourInstanceWidget.routeName,
-                                        context.mounted,
-                                        pathParameters: {
-                                          'instance': serializeParam(
-                                            FFAppState().instanceId,
-                                            ParamType.String,
-                                          ),
-                                        }.withoutNulls,
-                                      );
+                                          ChooseYourInstanceWidget.routeName,
+                                          context.mounted);
 
                                       safeSetState(() {});
                                     },

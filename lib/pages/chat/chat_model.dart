@@ -117,8 +117,12 @@ class ChatModel extends FlutterFlowModel<ChatWidget> {
   ApiCallResponse? apiResult3l0;
   // Stores action output result for [Firestore Query - Query a collection] action in Container widget.
   FunctionRecord? function;
+  // Stores action output result for [Backend Call - Create Document] action in Button widget.
+  ConversationRecord? newConversation3;
   // Model for Drawer component.
   late DrawerModel drawerModel2;
+  // Stores action output result for [Backend Call - Read Document] action in FloatingActionButton widget.
+  UsersRecord? user;
 
   @override
   void initState(BuildContext context) {

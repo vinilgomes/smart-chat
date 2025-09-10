@@ -209,6 +209,44 @@ class _ChatWidgetState extends State<ChatWidget> with TickerProviderStateMixin {
       child: Scaffold(
         key: scaffoldKey,
         backgroundColor: FlutterFlowTheme.of(context).alternate,
+        floatingActionButton: FloatingActionButton(
+          onPressed: () async {
+            _model.user =
+                await UsersRecord.getDocumentOnce(currentUserReference!);
+            await showModalBottomSheet(
+              isScrollControlled: true,
+              backgroundColor: Colors.transparent,
+              enableDrag: false,
+              context: context,
+              builder: (context) {
+                return GestureDetector(
+                  onTap: () {
+                    FocusScope.of(context).unfocus();
+                    FocusManager.instance.primaryFocus?.unfocus();
+                  },
+                  child: Padding(
+                    padding: MediaQuery.viewInsetsOf(context),
+                    child: EmptyMessagesWidget(
+                      imgUrl: FFAppState().instancePersona,
+                      user: _model.user,
+                      instance: _model.instanceParams,
+                      prompt: _model.prompt,
+                    ),
+                  ),
+                );
+              },
+            ).then((value) => safeSetState(() {}));
+
+            safeSetState(() {});
+          },
+          backgroundColor: FlutterFlowTheme.of(context).warning,
+          elevation: 8.0,
+          child: Icon(
+            Icons.question_mark,
+            color: FlutterFlowTheme.of(context).info,
+            size: 24.0,
+          ),
+        ),
         drawer: Container(
           width: 300.0,
           child: Drawer(
@@ -300,9 +338,11 @@ class _ChatWidgetState extends State<ChatWidget> with TickerProviderStateMixin {
                                     .where((e) => e.visible)
                                     .toList();
                                 if (message.isEmpty) {
-                                  return EmptyMessagesWidget(
-                                    imgUrl:
-                                        _model.instanceParams!.instancePersona,
+                                  return Center(
+                                    child: EmptyMessagesWidget(
+                                      imgUrl: _model
+                                          .instanceParams!.instancePersona,
+                                    ),
                                   );
                                 }
 
@@ -1571,8 +1611,6 @@ class _ChatWidgetState extends State<ChatWidget> with TickerProviderStateMixin {
                                                                             .messages
                                                                             .elementAtOrNull(_model.messages.length -
                                                                                 3)
-                                                                            ?.content
-                                                                            .firstOrNull
                                                                             ?.responseId
                                                                         : '',
                                                                     FFAppState()
@@ -1660,7 +1698,12 @@ class _ChatWidgetState extends State<ChatWidget> with TickerProviderStateMixin {
                                                                           ..responseId = ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)
                                                                               ?.response
                                                                               .id,
-                                                                      ),
+                                                                      )
+                                                                      ..responseId = ResponseStreamingStruct.maybeFromMap(onMessageInput
+                                                                              .serverSentEvent
+                                                                              .jsonData)
+                                                                          ?.response
+                                                                          .id,
                                                                   );
                                                                   safeSetState(
                                                                       () {});
@@ -2070,8 +2113,46 @@ class _ChatWidgetState extends State<ChatWidget> with TickerProviderStateMixin {
                                     ))
                                       FFButtonWidget(
                                         onPressed: () async {
+                                          var conversationRecordReference =
+                                              ConversationRecord.collection
+                                                  .doc();
+                                          await conversationRecordReference
+                                              .set(createConversationRecordData(
+                                            user: currentUserReference,
+                                            createdAt: getCurrentTimestamp,
+                                            lastMessageAt: getCurrentTimestamp,
+                                            instanceId:
+                                                FFAppState().instanceReference,
+                                            promptId:
+                                                _model.prompt?.reference != null
+                                                    ? _model.prompt?.reference
+                                                    : null,
+                                          ));
+                                          _model.newConversation3 =
+                                              ConversationRecord.getDocumentFromData(
+                                                  createConversationRecordData(
+                                                    user: currentUserReference,
+                                                    createdAt:
+                                                        getCurrentTimestamp,
+                                                    lastMessageAt:
+                                                        getCurrentTimestamp,
+                                                    instanceId: FFAppState()
+                                                        .instanceReference,
+                                                    promptId: _model.prompt
+                                                                ?.reference !=
+                                                            null
+                                                        ? _model
+                                                            .prompt?.reference
+                                                        : null,
+                                                  ),
+                                                  conversationRecordReference);
+                                          FFAppState().conversationId = _model
+                                              .newConversation3?.reference;
+                                          safeSetState(() {});
                                           _model.messages = [];
                                           _model.suggestions = [];
+                                          safeSetState(() {});
+
                                           safeSetState(() {});
                                         },
                                         text: 'Novo Chat',

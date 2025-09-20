@@ -82,7 +82,7 @@ class _InstanceConfigWidgetState extends State<InstanceConfigWidget> {
             apiKey: _model.instanceData?.openaiKey != null &&
                     _model.instanceData?.openaiKey != ''
                 ? _model.instanceData?.openaiKey
-                : FFAppConstants.SystemOpenAIAPIKey,
+                : getRemoteConfigString('systemOpenAIKey'),
             name: _model.instanceData?.instanceId,
           );
 
@@ -98,7 +98,7 @@ class _InstanceConfigWidgetState extends State<InstanceConfigWidget> {
           apiKey: _model.instanceData?.openaiKey != null &&
                   _model.instanceData?.openaiKey != ''
               ? _model.instanceData?.openaiKey
-              : FFAppConstants.SystemOpenAIAPIKey,
+              : getRemoteConfigString('systemOpenAIKey'),
         );
 
         _model.accessList = _model.listaFull!.toList().cast<AccessRecord>();
@@ -1411,8 +1411,8 @@ class _InstanceConfigWidgetState extends State<InstanceConfigWidget> {
                                                             ? _model
                                                                 .instanceData
                                                                 ?.openaiKey
-                                                            : FFAppConstants
-                                                                .SystemOpenAIAPIKey,
+                                                            : getRemoteConfigString(
+                                                                'systemOpenAIKey'),
                                                       );
 
                                                       if ((_model

@@ -1930,7 +1930,7 @@ class _PromptConfigWidgetState extends State<PromptConfigWidget> {
                                                                 _model.uploadedLocalFiles_uploadVs[
                                                                     loop1Index];
                                                             if (functions
-                                                                .validateFileTypes(
+                                                                .validateVSFileTypes(
                                                                     currentLoop1Item)!) {
                                                               _model.file =
                                                                   await OpenAIAPIGroup

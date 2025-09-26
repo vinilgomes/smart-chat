@@ -146,4 +146,10 @@ class FFAppState extends ChangeNotifier {
   set conversationId(DocumentReference? value) {
     _conversationId = value;
   }
+
+  String _chatName = '';
+  String get chatName => _chatName;
+  set chatName(String value) {
+    _chatName = value;
+  }
 }

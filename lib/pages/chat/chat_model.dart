@@ -70,7 +70,7 @@ class ChatModel extends FlutterFlowModel<ChatWidget> {
   // Models for Message dynamic component.
   late FlutterFlowDynamicModels<MessageModel> messageModels;
   // State field(s) for Row widget.
-  ScrollController? row;
+  ScrollController? rowScrollController;
   String? recordedAudio;
   FFUploadedFile recordedFileBytes =
       FFUploadedFile(bytes: Uint8List.fromList([]));
@@ -94,7 +94,7 @@ class ChatModel extends FlutterFlowModel<ChatWidget> {
   // Stores action output result for [Backend Call - API (createFile)] action in IconButton widget.
   ApiCallResponse? file;
   // State field(s) for UploadedImageThumbnails widget.
-  ScrollController? uploadedImageThumbnails;
+  ScrollController? uploadedImageThumbnailsScrollController;
   // State field(s) for UserMessage widget.
   FocusNode? userMessageFocusNode;
   TextEditingController? userMessageTextController;
@@ -129,8 +129,8 @@ class ChatModel extends FlutterFlowModel<ChatWidget> {
     drawerModel1 = createModel(context, () => DrawerModel());
     listViewController = ScrollController();
     messageModels = FlutterFlowDynamicModels(() => MessageModel());
-    row = ScrollController();
-    uploadedImageThumbnails = ScrollController();
+    rowScrollController = ScrollController();
+    uploadedImageThumbnailsScrollController = ScrollController();
     drawerModel2 = createModel(context, () => DrawerModel());
   }
 
@@ -139,8 +139,8 @@ class ChatModel extends FlutterFlowModel<ChatWidget> {
     drawerModel1.dispose();
     listViewController?.dispose();
     messageModels.dispose();
-    row?.dispose();
-    uploadedImageThumbnails?.dispose();
+    rowScrollController?.dispose();
+    uploadedImageThumbnailsScrollController?.dispose();
     userMessageFocusNode?.dispose();
     userMessageTextController?.dispose();
 

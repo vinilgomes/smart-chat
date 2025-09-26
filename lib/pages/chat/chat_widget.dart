@@ -99,6 +99,7 @@ class _ChatWidgetState extends State<ChatWidget> with TickerProviderStateMixin {
       FFAppState().topP = 1.0;
       FFAppState().temperature = 1.0;
       FFAppState().webSearch = _model.instanceParams!.webSearch;
+      FFAppState().chatName = _model.instanceParams!.instanceName;
       safeSetState(() {});
       // limpa lista de funções
       _model.functionList = [];
@@ -130,6 +131,7 @@ class _ChatWidgetState extends State<ChatWidget> with TickerProviderStateMixin {
         FFAppState().temperature = _model.prompt!.temperature;
         FFAppState().topP = _model.prompt!.topP;
         FFAppState().webSearch = _model.prompt!.webSearch;
+        FFAppState().chatName = _model.prompt!.promptName;
         safeSetState(() {});
         for (int loop1Index = 0;
             loop1Index < _model.prompt!.functions.length;
@@ -467,7 +469,8 @@ class _ChatWidgetState extends State<ChatWidget> with TickerProviderStateMixin {
                                                 return SingleChildScrollView(
                                                   scrollDirection:
                                                       Axis.horizontal,
-                                                  controller: _model.row,
+                                                  controller: _model
+                                                      .rowScrollController,
                                                   child: Row(
                                                     mainAxisSize:
                                                         MainAxisSize.max,
@@ -784,6 +787,18 @@ class _ChatWidgetState extends State<ChatWidget> with TickerProviderStateMixin {
                                                   highlightColor:
                                                       Colors.transparent,
                                                   onTap: () async {
+                                                    safeSetState(() {
+                                                      _model.isDataUploading_uploadDataQ38 =
+                                                          false;
+                                                      _model.uploadedLocalFile_uploadDataQ38 =
+                                                          FFUploadedFile(
+                                                              bytes: Uint8List
+                                                                  .fromList(
+                                                                      []));
+                                                      _model.uploadedFileUrl_uploadDataQ38 =
+                                                          '';
+                                                    });
+
                                                     // Upload image to Firebase
                                                     final selectedMedia =
                                                         await selectMediaWithSourceBottomSheet(
@@ -879,43 +894,50 @@ class _ChatWidgetState extends State<ChatWidget> with TickerProviderStateMixin {
                                                       }
                                                     }
 
-                                                    if (_model.messages
-                                                            .lastOrNull?.role ==
-                                                        'user') {
-                                                      // Update last message in the list to include image
-                                                      _model
-                                                          .updateMessagesAtIndex(
-                                                        _model.messages.length -
-                                                            1,
-                                                        (e) => e
-                                                          ..updateContent(
-                                                            (e) => e.add(
-                                                                ContentStruct(
-                                                              type: 'image_url',
-                                                              imageUrl:
-                                                                  ImageUrlStruct(
-                                                                url: _model
-                                                                    .uploadedFileUrl_uploadDataQ38,
-                                                              ),
-                                                            )),
-                                                          ),
-                                                      );
-                                                      safeSetState(() {});
-                                                    } else {
-                                                      // Add new message
-                                                      _model.addToMessages(
-                                                          ThreadMessageStruct(
-                                                        role: 'user',
-                                                        content: functions
-                                                            .buildContent(
-                                                                null,
-                                                                _model
-                                                                    .uploadedFileUrl_uploadDataQ38),
-                                                        visible: false,
-                                                        img: _model
-                                                            .uploadedFileUrl_uploadDataQ38,
-                                                      ));
-                                                      safeSetState(() {});
+                                                    if (_model.uploadedFileUrl_uploadDataQ38 !=
+                                                            '') {
+                                                      if (_model
+                                                              .messages
+                                                              .lastOrNull
+                                                              ?.role ==
+                                                          'user') {
+                                                        // Update last message in the list to include image
+                                                        _model
+                                                            .updateMessagesAtIndex(
+                                                          _model.messages
+                                                                  .length -
+                                                              1,
+                                                          (e) => e
+                                                            ..updateContent(
+                                                              (e) => e.add(
+                                                                  ContentStruct(
+                                                                type:
+                                                                    'image_url',
+                                                                imageUrl:
+                                                                    ImageUrlStruct(
+                                                                  url: _model
+                                                                      .uploadedFileUrl_uploadDataQ38,
+                                                                ),
+                                                              )),
+                                                            ),
+                                                        );
+                                                        safeSetState(() {});
+                                                      } else {
+                                                        // Add new message
+                                                        _model.addToMessages(
+                                                            ThreadMessageStruct(
+                                                          role: 'user',
+                                                          content: functions
+                                                              .buildContent(
+                                                                  null,
+                                                                  _model
+                                                                      .uploadedFileUrl_uploadDataQ38),
+                                                          visible: false,
+                                                          img: _model
+                                                              .uploadedFileUrl_uploadDataQ38,
+                                                        ));
+                                                        safeSetState(() {});
+                                                      }
                                                     }
                                                   },
                                                   child: Icon(
@@ -944,6 +966,16 @@ class _ChatWidgetState extends State<ChatWidget> with TickerProviderStateMixin {
                                                           .isDataUploading_uploadData5tf
                                                       ? null
                                                       : () async {
+                                                          safeSetState(() {
+                                                            _model.isDataUploading_uploadData5tf =
+                                                                false;
+                                                            _model.uploadedLocalFile_uploadData5tf =
+                                                                FFUploadedFile(
+                                                                    bytes: Uint8List
+                                                                        .fromList(
+                                                                            []));
+                                                          });
+
                                                           // Upload image to Firebase
                                                           final selectedFiles =
                                                               await selectFiles(
@@ -988,94 +1020,128 @@ class _ChatWidgetState extends State<ChatWidget> with TickerProviderStateMixin {
                                                             }
                                                           }
 
-                                                          _model.file =
-                                                              await OpenAIAPIGroup
-                                                                  .createFileCall
-                                                                  .call(
-                                                            file: _model
-                                                                .uploadedLocalFile_uploadData5tf,
-                                                            apiKey: _model
-                                                                .instanceParams
-                                                                ?.openaiKey,
-                                                          );
+                                                          if ((_model
+                                                                      .uploadedLocalFile_uploadData5tf
+                                                                      .bytes
+                                                                      ?.isNotEmpty ??
+                                                                  false)) {
+                                                            if (functions
+                                                                .validateInputFileTypes(
+                                                                    _model
+                                                                        .uploadedLocalFile_uploadData5tf)!) {
+                                                              _model.file =
+                                                                  await OpenAIAPIGroup
+                                                                      .createFileCall
+                                                                      .call(
+                                                                file: _model
+                                                                    .uploadedLocalFile_uploadData5tf,
+                                                                apiKey: _model
+                                                                    .instanceParams
+                                                                    ?.openaiKey,
+                                                              );
 
-                                                          if (_model
-                                                                  .messages
-                                                                  .lastOrNull
-                                                                  ?.role ==
-                                                              'user') {
-                                                            // Update last message in the list to include file
-                                                            _model
-                                                                .updateMessagesAtIndex(
-                                                              _model.messages
-                                                                      .length -
-                                                                  1,
-                                                              (e) => e
-                                                                ..updateContent(
-                                                                  (e) => e.add(
-                                                                      ContentStruct(
-                                                                    type:
-                                                                        'input_file',
-                                                                    inputFile:
-                                                                        InputFileStruct(
-                                                                      type:
-                                                                          'input_file',
-                                                                      fileId:
-                                                                          getJsonField(
+                                                              if (_model
+                                                                      .messages
+                                                                      .lastOrNull
+                                                                      ?.role ==
+                                                                  'user') {
+                                                                // Update last message in the list to include file
+                                                                _model
+                                                                    .updateMessagesAtIndex(
+                                                                  _model.messages
+                                                                          .length -
+                                                                      1,
+                                                                  (e) => e
+                                                                    ..updateContent(
+                                                                      (e) => e.add(
+                                                                          ContentStruct(
+                                                                        type:
+                                                                            'input_file',
+                                                                        inputFile:
+                                                                            InputFileStruct(
+                                                                          type:
+                                                                              'input_file',
+                                                                          fileId:
+                                                                              getJsonField(
+                                                                            (_model.file?.jsonBody ??
+                                                                                ''),
+                                                                            r'''$.id''',
+                                                                          ).toString(),
+                                                                        ),
+                                                                      )),
+                                                                    ),
+                                                                );
+                                                                safeSetState(
+                                                                    () {});
+                                                              } else {
+                                                                // Add new message
+                                                                _model.addToMessages(
+                                                                    ThreadMessageStruct(
+                                                                  role: 'user',
+                                                                  content: functions.buildContentWithFile(
+                                                                      '${getJsonField(
+                                                                        (_model.file?.jsonBody ??
+                                                                            ''),
+                                                                        r'''$.filename''',
+                                                                      ).toString()} adicionado.',
+                                                                      getJsonField(
                                                                         (_model.file?.jsonBody ??
                                                                             ''),
                                                                         r'''$.id''',
-                                                                      ).toString(),
-                                                                    ),
-                                                                  )),
-                                                                ),
-                                                            );
-                                                            safeSetState(() {});
-                                                          } else {
-                                                            // Add new message
-                                                            _model.addToMessages(
-                                                                ThreadMessageStruct(
-                                                              role: 'user',
-                                                              content: functions.buildContentWithFile(
-                                                                  '${getJsonField(
-                                                                    (_model.file
-                                                                            ?.jsonBody ??
-                                                                        ''),
-                                                                    r'''$.filename''',
-                                                                  ).toString()} adicionado.',
-                                                                  getJsonField(
-                                                                    (_model.file
-                                                                            ?.jsonBody ??
-                                                                        ''),
-                                                                    r'''$.id''',
-                                                                  ).toString()),
-                                                              visible: true,
-                                                            ));
-                                                            safeSetState(() {});
-                                                          }
+                                                                      ).toString()),
+                                                                  visible: true,
+                                                                ));
+                                                                safeSetState(
+                                                                    () {});
+                                                              }
 
-                                                          ScaffoldMessenger.of(
-                                                                  context)
-                                                              .showSnackBar(
-                                                            SnackBar(
-                                                              content: Text(
-                                                                'Arquivo adicionado.',
-                                                                style:
-                                                                    TextStyle(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                              ScaffoldMessenger
+                                                                      .of(context)
+                                                                  .showSnackBar(
+                                                                SnackBar(
+                                                                  content: Text(
+                                                                    'Arquivo adicionado.',
+                                                                    style:
+                                                                        TextStyle(
+                                                                      color: FlutterFlowTheme.of(
+                                                                              context)
+                                                                          .primaryText,
+                                                                    ),
+                                                                  ),
+                                                                  duration: Duration(
+                                                                      milliseconds:
+                                                                          4000),
+                                                                  backgroundColor:
+                                                                      FlutterFlowTheme.of(
+                                                                              context)
+                                                                          .secondary,
                                                                 ),
-                                                              ),
-                                                              duration: Duration(
-                                                                  milliseconds:
-                                                                      4000),
-                                                              backgroundColor:
-                                                                  FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .secondary,
-                                                            ),
-                                                          );
+                                                              );
+                                                            } else {
+                                                              await showDialog(
+                                                                context:
+                                                                    context,
+                                                                builder:
+                                                                    (alertDialogContext) {
+                                                                  return AlertDialog(
+                                                                    title: Text(
+                                                                        'Formato de arquivo inválido.'),
+                                                                    content: Text(
+                                                                        'Formatos aceitos: pdf, txt, md, c, cpp, cs, css, doc, docx, go, html, java, js, json, php, pptx, py, rb, sh, tex, ts.'),
+                                                                    actions: [
+                                                                      TextButton(
+                                                                        onPressed:
+                                                                            () =>
+                                                                                Navigator.pop(alertDialogContext),
+                                                                        child: Text(
+                                                                            'Ok'),
+                                                                      ),
+                                                                    ],
+                                                                  );
+                                                                },
+                                                              );
+                                                            }
+                                                          }
 
                                                           safeSetState(() {});
                                                         },
@@ -1142,7 +1208,7 @@ class _ChatWidgetState extends State<ChatWidget> with TickerProviderStateMixin {
                                                                           scrollDirection:
                                                                               Axis.horizontal,
                                                                           controller:
-                                                                              _model.uploadedImageThumbnails,
+                                                                              _model.uploadedImageThumbnailsScrollController,
                                                                           child:
                                                                               Row(
                                                                             mainAxisSize:
@@ -1398,341 +1464,300 @@ class _ChatWidgetState extends State<ChatWidget> with TickerProviderStateMixin {
                                                       cursor:
                                                           MouseCursor.defer ??
                                                               MouseCursor.defer,
-                                                      child: InkWell(
-                                                        splashColor:
-                                                            Colors.transparent,
-                                                        focusColor:
-                                                            Colors.transparent,
-                                                        hoverColor:
-                                                            Colors.transparent,
-                                                        highlightColor:
-                                                            Colors.transparent,
-                                                        onTap: () async {
-                                                          if (_model
-                                                                  .messages
-                                                                  .lastOrNull
-                                                                  ?.role ==
-                                                              'user') {
-                                                            // update user message
+                                                      child: Visibility(
+                                                        visible: !(_model
+                                                                .isDataUploading_uploadDataQ38 &&
                                                             _model
-                                                                .updateMessagesAtIndex(
-                                                              _model.messages
-                                                                      .length -
-                                                                  1,
-                                                              (e) => e
-                                                                ..updateContent(
-                                                                  (e) => e.add(
-                                                                      ContentStruct(
-                                                                    type:
-                                                                        'text',
-                                                                    text: _model
-                                                                        .userMessageTextController
-                                                                        .text,
-                                                                  )),
-                                                                )
-                                                                ..visible =
-                                                                    true,
-                                                            );
-                                                            safeSetState(() {});
-                                                          } else {
-                                                            // Add user message
-                                                            _model.addToMessages(
-                                                                ThreadMessageStruct(
-                                                              role: 'user',
-                                                              content: functions
-                                                                  .buildContent(
-                                                                      _model
+                                                                .isDataUploading_uploadData5tf),
+                                                        child: InkWell(
+                                                          splashColor: Colors
+                                                              .transparent,
+                                                          focusColor: Colors
+                                                              .transparent,
+                                                          hoverColor: Colors
+                                                              .transparent,
+                                                          highlightColor: Colors
+                                                              .transparent,
+                                                          onTap: () async {
+                                                            if (_model
+                                                                    .messages
+                                                                    .lastOrNull
+                                                                    ?.role ==
+                                                                'user') {
+                                                              // update user message
+                                                              _model
+                                                                  .updateMessagesAtIndex(
+                                                                _model.messages
+                                                                        .length -
+                                                                    1,
+                                                                (e) => e
+                                                                  ..updateContent(
+                                                                    (e) => e.add(
+                                                                        ContentStruct(
+                                                                      type:
+                                                                          'text',
+                                                                      text: _model
                                                                           .userMessageTextController
                                                                           .text,
+                                                                    )),
+                                                                  )
+                                                                  ..visible =
+                                                                      true,
+                                                              );
+                                                              safeSetState(
+                                                                  () {});
+                                                            } else {
+                                                              // Add user message
+                                                              _model.addToMessages(
+                                                                  ThreadMessageStruct(
+                                                                role: 'user',
+                                                                content: functions
+                                                                    .buildContent(
+                                                                        _model
+                                                                            .userMessageTextController
+                                                                            .text,
+                                                                        null),
+                                                              ));
+                                                              safeSetState(
+                                                                  () {});
+                                                            }
+
+                                                            if (!(FFAppState()
+                                                                    .conversationId !=
+                                                                null)) {
+                                                              var conversationRecordReference =
+                                                                  ConversationRecord
+                                                                      .collection
+                                                                      .doc();
+                                                              await conversationRecordReference
+                                                                  .set(
+                                                                      createConversationRecordData(
+                                                                user:
+                                                                    currentUserReference,
+                                                                createdAt:
+                                                                    getCurrentTimestamp,
+                                                                lastMessageAt:
+                                                                    getCurrentTimestamp,
+                                                                instanceId:
+                                                                    FFAppState()
+                                                                        .instanceReference,
+                                                                promptId: _model
+                                                                            .prompt
+                                                                            ?.reference !=
+                                                                        null
+                                                                    ? _model
+                                                                        .prompt
+                                                                        ?.reference
+                                                                    : null,
+                                                              ));
+                                                              _model.newConversation =
+                                                                  ConversationRecord
+                                                                      .getDocumentFromData(
+                                                                          createConversationRecordData(
+                                                                            user:
+                                                                                currentUserReference,
+                                                                            createdAt:
+                                                                                getCurrentTimestamp,
+                                                                            lastMessageAt:
+                                                                                getCurrentTimestamp,
+                                                                            instanceId:
+                                                                                FFAppState().instanceReference,
+                                                                            promptId: _model.prompt?.reference != null
+                                                                                ? _model.prompt?.reference
+                                                                                : null,
+                                                                          ),
+                                                                          conversationRecordReference);
+                                                              FFAppState()
+                                                                      .conversationId =
+                                                                  _model
+                                                                      .newConversation
+                                                                      ?.reference;
+                                                              safeSetState(
+                                                                  () {});
+                                                            }
+
+                                                            var messageRecordReference1 =
+                                                                MessageRecord.createDoc(
+                                                                    FFAppState()
+                                                                        .conversationId!);
+                                                            await messageRecordReference1
+                                                                .set(
+                                                                    createMessageRecordData(
+                                                              userId:
+                                                                  currentUserReference,
+                                                              role: 'user',
+                                                              text: _model
+                                                                  .userMessageTextController
+                                                                  .text,
+                                                              createdAt:
+                                                                  getCurrentTimestamp,
+                                                            ));
+                                                            _model.newMessage =
+                                                                MessageRecord
+                                                                    .getDocumentFromData(
+                                                                        createMessageRecordData(
+                                                                          userId:
+                                                                              currentUserReference,
+                                                                          role:
+                                                                              'user',
+                                                                          text: _model
+                                                                              .userMessageTextController
+                                                                              .text,
+                                                                          createdAt:
+                                                                              getCurrentTimestamp,
+                                                                        ),
+                                                                        messageRecordReference1);
+                                                            // Clear user input
+                                                            safeSetState(() {
+                                                              _model
+                                                                  .userMessageTextController
+                                                                  ?.clear();
+                                                            });
+                                                            safeSetState(() {
+                                                              _model.isDataUploading_uploadData5tf =
+                                                                  false;
+                                                              _model.uploadedLocalFile_uploadData5tf =
+                                                                  FFUploadedFile(
+                                                                      bytes: Uint8List
+                                                                          .fromList(
+                                                                              []));
+                                                            });
+
+                                                            // Scroll to the end of messages
+                                                            unawaited(
+                                                              () async {
+                                                                await _model
+                                                                    .listViewController
+                                                                    ?.animateTo(
+                                                                  _model
+                                                                      .listViewController!
+                                                                      .position
+                                                                      .maxScrollExtent,
+                                                                  duration: Duration(
+                                                                      milliseconds:
+                                                                          100),
+                                                                  curve: Curves
+                                                                      .ease,
+                                                                );
+                                                              }(),
+                                                            );
+                                                            // Initialize assistant message
+                                                            _model.addToMessages(
+                                                                ThreadMessageStruct(
+                                                              role: 'assistant',
+                                                              content: functions
+                                                                  .buildContent(
+                                                                      null,
                                                                       null),
                                                             ));
                                                             safeSetState(() {});
-                                                          }
-
-                                                          if (!(FFAppState()
-                                                                  .conversationId !=
-                                                              null)) {
-                                                            var conversationRecordReference =
-                                                                ConversationRecord
-                                                                    .collection
-                                                                    .doc();
-                                                            await conversationRecordReference
-                                                                .set(
-                                                                    createConversationRecordData(
-                                                              user:
-                                                                  currentUserReference,
-                                                              createdAt:
-                                                                  getCurrentTimestamp,
-                                                              lastMessageAt:
-                                                                  getCurrentTimestamp,
-                                                              instanceId:
-                                                                  FFAppState()
-                                                                      .instanceReference,
-                                                              promptId: _model
-                                                                          .prompt
-                                                                          ?.reference !=
-                                                                      null
-                                                                  ? _model
-                                                                      .prompt
-                                                                      ?.reference
-                                                                  : null,
-                                                            ));
-                                                            _model.newConversation =
-                                                                ConversationRecord
-                                                                    .getDocumentFromData(
-                                                                        createConversationRecordData(
-                                                                          user:
-                                                                              currentUserReference,
-                                                                          createdAt:
-                                                                              getCurrentTimestamp,
-                                                                          lastMessageAt:
-                                                                              getCurrentTimestamp,
-                                                                          instanceId:
-                                                                              FFAppState().instanceReference,
-                                                                          promptId: _model.prompt?.reference != null
-                                                                              ? _model.prompt?.reference
-                                                                              : null,
-                                                                        ),
-                                                                        conversationRecordReference);
-                                                            FFAppState()
-                                                                    .conversationId =
-                                                                _model
-                                                                    .newConversation
-                                                                    ?.reference;
-                                                            safeSetState(() {});
-                                                          }
-
-                                                          var messageRecordReference1 =
-                                                              MessageRecord.createDoc(
-                                                                  FFAppState()
-                                                                      .conversationId!);
-                                                          await messageRecordReference1
-                                                              .set(
-                                                                  createMessageRecordData(
-                                                            userId:
-                                                                currentUserReference,
-                                                            role: 'user',
-                                                            text: _model
-                                                                .userMessageTextController
-                                                                .text,
-                                                            createdAt:
-                                                                getCurrentTimestamp,
-                                                          ));
-                                                          _model.newMessage = MessageRecord
-                                                              .getDocumentFromData(
-                                                                  createMessageRecordData(
-                                                                    userId:
-                                                                        currentUserReference,
-                                                                    role:
-                                                                        'user',
-                                                                    text: _model
-                                                                        .userMessageTextController
-                                                                        .text,
-                                                                    createdAt:
-                                                                        getCurrentTimestamp,
-                                                                  ),
-                                                                  messageRecordReference1);
-                                                          // Clear user input
-                                                          safeSetState(() {
-                                                            _model
-                                                                .userMessageTextController
-                                                                ?.clear();
-                                                          });
-                                                          safeSetState(() {
-                                                            _model.isDataUploading_uploadData5tf =
+                                                            // Reset generatingImage
+                                                            _model.generatingImage =
                                                                 false;
-                                                            _model.uploadedLocalFile_uploadData5tf =
-                                                                FFUploadedFile(
-                                                                    bytes: Uint8List
-                                                                        .fromList(
-                                                                            []));
-                                                          });
-
-                                                          // Scroll to the end of messages
-                                                          unawaited(
-                                                            () async {
-                                                              await _model
-                                                                  .listViewController
-                                                                  ?.animateTo(
-                                                                _model
-                                                                    .listViewController!
-                                                                    .position
-                                                                    .maxScrollExtent,
-                                                                duration: Duration(
-                                                                    milliseconds:
-                                                                        100),
-                                                                curve:
-                                                                    Curves.ease,
-                                                              );
-                                                            }(),
-                                                          );
-                                                          // Initialize assistant message
-                                                          _model.addToMessages(
-                                                              ThreadMessageStruct(
-                                                            role: 'assistant',
-                                                            content: functions
-                                                                .buildContent(
-                                                                    null, null),
-                                                          ));
-                                                          safeSetState(() {});
-                                                          // Reset generatingImage
-                                                          _model.generatingImage =
-                                                              false;
-                                                          safeSetState(() {});
-                                                          _model.response =
-                                                              await OpenAIAPIGroup
-                                                                  .createResponseCall
-                                                                  .call(
-                                                            responseJsonJson: functions
-                                                                .buildResponseJson(
-                                                                    null,
-                                                                    FFAppState()
-                                                                        .chatSystemPrompt,
-                                                                    _model
-                                                                        .messages
-                                                                        .elementAtOrNull(
-                                                                            _model.messages.length -
-                                                                                2)!
-                                                                        .content
-                                                                        .lastOrNull!
-                                                                        .text,
-                                                                    null,
-                                                                    FFAppState()
-                                                                        .chatInstructions,
-                                                                    'text',
-                                                                    FFAppState()
-                                                                        .temperature,
-                                                                    FFAppState()
-                                                                        .topP,
-                                                                    _model.messages
-                                                                                .length >=
-                                                                            4
-                                                                        ? _model
-                                                                            .messages
-                                                                            .elementAtOrNull(_model.messages.length -
-                                                                                3)
-                                                                            ?.responseId
-                                                                        : '',
-                                                                    FFAppState()
-                                                                        .vectorStoreId,
-                                                                    '',
-                                                                    <String,
-                                                                        dynamic>{},
-                                                                    valueOrDefault<
-                                                                        bool>(
-                                                                      widget.promptId != null &&
-                                                                              widget.promptId !=
-                                                                                  ''
-                                                                          ? valueOrDefault<
-                                                                              bool>(
-                                                                              _model.prompt?.webSearch,
-                                                                              false,
-                                                                            )
-                                                                          : _model
-                                                                              .instanceParams
-                                                                              ?.webSearch,
-                                                                      false,
-                                                                    ),
-                                                                    true,
-                                                                    functions
-                                                                        .extractFileFromContent(_model
-                                                                            .messages
-                                                                            .elementAtOrNull(_model.messages.length - 2)
-                                                                            ?.content
-                                                                            .toList())
-                                                                        .toList(),
-                                                                    (getJsonField(
+                                                            safeSetState(() {});
+                                                            _model.response =
+                                                                await OpenAIAPIGroup
+                                                                    .createResponseCall
+                                                                    .call(
+                                                              responseJsonJson: functions
+                                                                  .buildResponseJson(
+                                                                      null,
+                                                                      FFAppState()
+                                                                          .chatSystemPrompt,
+                                                                      _model
+                                                                          .messages
+                                                                          .elementAtOrNull(_model.messages.length -
+                                                                              2)!
+                                                                          .content
+                                                                          .lastOrNull!
+                                                                          .text,
+                                                                      null,
+                                                                      FFAppState()
+                                                                          .chatInstructions,
+                                                                      'text',
+                                                                      FFAppState()
+                                                                          .temperature,
+                                                                      FFAppState()
+                                                                          .topP,
+                                                                      _model.messages.length >= 4
+                                                                          ? _model
+                                                                              .messages
+                                                                              .elementAtOrNull(_model.messages.length -
+                                                                                  3)
+                                                                              ?.responseId
+                                                                          : '',
+                                                                      FFAppState()
+                                                                          .vectorStoreId,
+                                                                      '',
+                                                                      <String,
+                                                                          dynamic>{},
+                                                                      valueOrDefault<
+                                                                          bool>(
+                                                                        widget.promptId != null &&
+                                                                                widget.promptId != ''
+                                                                            ? valueOrDefault<bool>(
+                                                                                _model.prompt?.webSearch,
+                                                                                false,
+                                                                              )
+                                                                            : _model.instanceParams?.webSearch,
+                                                                        false,
+                                                                      ),
+                                                                      true,
+                                                                      functions
+                                                                          .extractFileFromContent(_model
+                                                                              .messages
+                                                                              .elementAtOrNull(_model.messages.length -
+                                                                                  2)
+                                                                              ?.content
+                                                                              .toList())
+                                                                          .toList(),
+                                                                      (getJsonField(
+                                                                                    functions.contentToJson(_model.messages.elementAtOrNull(_model.messages.length - 2)!.content.toList()),
+                                                                                    r'''$[:].image_url''',
+                                                                                  ) ==
+                                                                                  null
+                                                                              ? functions
+                                                                                  .emptyImagePathList()
+                                                                              : functions.extractImgs(
+                                                                                  getJsonField(
                                                                                   functions.contentToJson(_model.messages.elementAtOrNull(_model.messages.length - 2)!.content.toList()),
                                                                                   r'''$[:].image_url''',
-                                                                                ) ==
-                                                                                null
-                                                                            ? functions.emptyImagePathList()
-                                                                            : functions.extractImgs(getJsonField(
-                                                                                functions.contentToJson(_model.messages.elementAtOrNull(_model.messages.length - 2)!.content.toList()),
-                                                                                r'''$[:].image_url''',
-                                                                                true,
-                                                                              )!))
-                                                                        ?.toList(),
-                                                                    _model.functionList.toList()),
-                                                            apiKey: FFAppState()
-                                                                .openAIAPIKey,
-                                                          );
-                                                          if (_model.response
-                                                                  ?.succeeded ??
-                                                              true) {
-                                                            final streamSubscription = _model
-                                                                .response
-                                                                ?.streamedResponse
-                                                                ?.stream
-                                                                .transform(utf8
-                                                                    .decoder)
-                                                                .transform(
-                                                                    const LineSplitter())
-                                                                .transform(
-                                                                    ServerSentEventLineTransformer())
-                                                                .map((m) =>
-                                                                    ResponseStreamMessage(
-                                                                        message:
-                                                                            m))
-                                                                .listen(
-                                                              (onMessageInput) async {
-                                                                var _shouldSetState =
-                                                                    false;
-                                                                if (ResponseStreamingStruct.maybeFromMap(onMessageInput
-                                                                            .serverSentEvent
-                                                                            .jsonData)
-                                                                        ?.type ==
-                                                                    'response.created') {
-                                                                  // Update responde_id on assistant message
-                                                                  _model
-                                                                      .updateMessagesAtIndex(
-                                                                    _model.messages
-                                                                            .length -
-                                                                        1,
-                                                                    (e) => e
-                                                                      ..updateContent(
-                                                                        (e) => e[
-                                                                            0]
-                                                                          ..type =
-                                                                              'text'
-                                                                          ..responseId = ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)
-                                                                              ?.response
-                                                                              .id,
-                                                                      )
-                                                                      ..responseId = ResponseStreamingStruct.maybeFromMap(onMessageInput
-                                                                              .serverSentEvent
-                                                                              .jsonData)
-                                                                          ?.response
-                                                                          .id,
-                                                                  );
-                                                                  safeSetState(
-                                                                      () {});
-                                                                  // Update responde_id on assistant message
-                                                                  _model
-                                                                      .updateMessagesAtIndex(
-                                                                    _model.messages
-                                                                            .length -
-                                                                        2,
-                                                                    (e) => e
-                                                                      ..updateContent(
-                                                                        (e) => e[
-                                                                            0]
-                                                                          ..type =
-                                                                              'text'
-                                                                          ..responseId = ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)
-                                                                              ?.response
-                                                                              .id,
-                                                                      ),
-                                                                  );
-                                                                  safeSetState(
-                                                                      () {});
-                                                                } else {
+                                                                                  true,
+                                                                                )!))
+                                                                          ?.toList(),
+                                                                      _model
+                                                                          .functionList
+                                                                          .toList()),
+                                                              apiKey: FFAppState()
+                                                                  .openAIAPIKey,
+                                                            );
+                                                            if (_model.response
+                                                                    ?.succeeded ??
+                                                                true) {
+                                                              final streamSubscription = _model
+                                                                  .response
+                                                                  ?.streamedResponse
+                                                                  ?.stream
+                                                                  .transform(utf8
+                                                                      .decoder)
+                                                                  .transform(
+                                                                      const LineSplitter())
+                                                                  .transform(
+                                                                      ServerSentEventLineTransformer())
+                                                                  .map((m) =>
+                                                                      ResponseStreamMessage(
+                                                                          message:
+                                                                              m))
+                                                                  .listen(
+                                                                (onMessageInput) async {
+                                                                  var _shouldSetState =
+                                                                      false;
                                                                   if (ResponseStreamingStruct.maybeFromMap(onMessageInput
                                                                               .serverSentEvent
                                                                               .jsonData)
                                                                           ?.type ==
-                                                                      'response.output_text.delta') {
-                                                                    // Update text on assistant message
+                                                                      'response.created') {
+                                                                    // Update responde_id on assistant message
                                                                     _model
                                                                         .updateMessagesAtIndex(
                                                                       _model.messages
@@ -1744,322 +1769,352 @@ class _ChatWidgetState extends State<ChatWidget> with TickerProviderStateMixin {
                                                                               0]
                                                                             ..type =
                                                                                 'text'
-                                                                            ..text =
-                                                                                '${_model.messages.lastOrNull?.content.firstOrNull?.text}${ResponseDeltaStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)?.delta}',
+                                                                            ..responseId =
+                                                                                ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)?.response.id,
+                                                                        )
+                                                                        ..responseId = ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)
+                                                                            ?.response
+                                                                            .id,
+                                                                    );
+                                                                    safeSetState(
+                                                                        () {});
+                                                                    // Update responde_id on assistant message
+                                                                    _model
+                                                                        .updateMessagesAtIndex(
+                                                                      _model.messages
+                                                                              .length -
+                                                                          2,
+                                                                      (e) => e
+                                                                        ..updateContent(
+                                                                          (e) => e[
+                                                                              0]
+                                                                            ..type =
+                                                                                'text'
+                                                                            ..responseId =
+                                                                                ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)?.response.id,
                                                                         ),
                                                                     );
                                                                     safeSetState(
                                                                         () {});
-                                                                    HapticFeedback
-                                                                        .lightImpact();
                                                                   } else {
                                                                     if (ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)
                                                                             ?.type ==
-                                                                        'response.completed') {
-                                                                      for (int loop1Index =
-                                                                              0;
-                                                                          loop1Index <
-                                                                              ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)!.response.output.length;
-                                                                          loop1Index++) {
-                                                                        final currentLoop1Item = ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)!
-                                                                            .response
-                                                                            .output[loop1Index];
-                                                                        if (currentLoop1Item.type ==
-                                                                            'function_call') {
-                                                                          _model.function =
-                                                                              await queryFunctionRecordOnce(
-                                                                            queryBuilder: (functionRecord) =>
-                                                                                functionRecord.where(
-                                                                              'name',
-                                                                              isEqualTo: currentLoop1Item.name,
-                                                                            ),
-                                                                            singleRecord:
-                                                                                true,
-                                                                          ).then((s) => s.firstOrNull);
-                                                                          _shouldSetState =
-                                                                              true;
-                                                                          _model.apiResult3l0 = await NEightNPDGroup
-                                                                              .runFunctionCallCall
-                                                                              .call(
-                                                                            method:
-                                                                                'POST',
-                                                                            methodName:
-                                                                                currentLoop1Item.name,
-                                                                            methodBodyParametersJson:
-                                                                                functions.extractJsonfromText(currentLoop1Item.arguments),
-                                                                            workflowId:
-                                                                                _model.function?.workflowId,
-                                                                          );
-
-                                                                          _shouldSetState =
-                                                                              true;
-                                                                          if ((_model.apiResult3l0?.succeeded ??
-                                                                              true)) {
-                                                                            _model.apiResult95z =
-                                                                                await OpenAIAPIGroup.createResponseCall.call(
-                                                                              apiKey: FFAppState().openAIAPIKey,
-                                                                              responseJsonJson: functions.buildFunctionCallResponseJson(null, ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)?.response.id, true, currentLoop1Item.callId, (_model.apiResult3l0?.jsonBody ?? '').toString()),
+                                                                        'response.output_text.delta') {
+                                                                      // Update text on assistant message
+                                                                      _model
+                                                                          .updateMessagesAtIndex(
+                                                                        _model.messages.length -
+                                                                            1,
+                                                                        (e) => e
+                                                                          ..updateContent(
+                                                                            (e) => e[0]
+                                                                              ..type = 'text'
+                                                                              ..text = '${_model.messages.lastOrNull?.content.firstOrNull?.text}${ResponseDeltaStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)?.delta}',
+                                                                          ),
+                                                                      );
+                                                                      safeSetState(
+                                                                          () {});
+                                                                      HapticFeedback
+                                                                          .lightImpact();
+                                                                    } else {
+                                                                      if (ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)
+                                                                              ?.type ==
+                                                                          'response.completed') {
+                                                                        for (int loop1Index =
+                                                                                0;
+                                                                            loop1Index <
+                                                                                ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)!.response.output.length;
+                                                                            loop1Index++) {
+                                                                          final currentLoop1Item = ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)!
+                                                                              .response
+                                                                              .output[loop1Index];
+                                                                          if (currentLoop1Item.type ==
+                                                                              'function_call') {
+                                                                            _model.function =
+                                                                                await queryFunctionRecordOnce(
+                                                                              queryBuilder: (functionRecord) => functionRecord.where(
+                                                                                'name',
+                                                                                isEqualTo: currentLoop1Item.name,
+                                                                              ),
+                                                                              singleRecord: true,
+                                                                            ).then((s) => s.firstOrNull);
+                                                                            _shouldSetState =
+                                                                                true;
+                                                                            _model.apiResult3l0 =
+                                                                                await NEightNPDGroup.runFunctionCallCall.call(
+                                                                              method: 'POST',
+                                                                              methodName: currentLoop1Item.name,
+                                                                              methodBodyParametersJson: functions.extractJsonfromText(currentLoop1Item.arguments),
+                                                                              workflowId: _model.function?.workflowId,
                                                                             );
-                                                                            if (_model.apiResult95z?.succeeded ??
-                                                                                true) {
-                                                                              final streamSubscription = _model.apiResult95z?.streamedResponse?.stream.transform(utf8.decoder).transform(const LineSplitter()).transform(ServerSentEventLineTransformer()).map((m) => ResponseStreamMessage(message: m)).listen(
-                                                                                (onMessageInput) async {
-                                                                                  var _shouldSetState = false;
-                                                                                  if (ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)?.type == 'response.created') {
-                                                                                    // Update responde_id on assistant message
-                                                                                    _model.updateMessagesAtIndex(
-                                                                                      _model.messages.length - 1,
-                                                                                      (e) => e
-                                                                                        ..updateContent(
-                                                                                          (e) => e[0]
-                                                                                            ..type = 'text'
-                                                                                            ..responseId = ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)?.response.id,
-                                                                                        ),
-                                                                                    );
-                                                                                    safeSetState(() {});
-                                                                                    // Update responde_id on assistant message
-                                                                                    _model.updateMessagesAtIndex(
-                                                                                      _model.messages.length - 2,
-                                                                                      (e) => e
-                                                                                        ..updateContent(
-                                                                                          (e) => e[0]
-                                                                                            ..type = 'text'
-                                                                                            ..responseId = ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)?.response.id,
-                                                                                        ),
-                                                                                    );
-                                                                                    safeSetState(() {});
-                                                                                  } else {
-                                                                                    if (ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)?.type == 'response.output_text.delta') {
-                                                                                      // Update text on assistant message
+
+                                                                            _shouldSetState =
+                                                                                true;
+                                                                            if ((_model.apiResult3l0?.succeeded ??
+                                                                                true)) {
+                                                                              _model.apiResult95z = await OpenAIAPIGroup.createResponseCall.call(
+                                                                                apiKey: FFAppState().openAIAPIKey,
+                                                                                responseJsonJson: functions.buildFunctionCallResponseJson(null, ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)?.response.id, true, currentLoop1Item.callId, (_model.apiResult3l0?.jsonBody ?? '').toString()),
+                                                                              );
+                                                                              if (_model.apiResult95z?.succeeded ?? true) {
+                                                                                final streamSubscription = _model.apiResult95z?.streamedResponse?.stream.transform(utf8.decoder).transform(const LineSplitter()).transform(ServerSentEventLineTransformer()).map((m) => ResponseStreamMessage(message: m)).listen(
+                                                                                  (onMessageInput) async {
+                                                                                    var _shouldSetState = false;
+                                                                                    if (ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)?.type == 'response.created') {
+                                                                                      // Update responde_id on assistant message
                                                                                       _model.updateMessagesAtIndex(
                                                                                         _model.messages.length - 1,
                                                                                         (e) => e
                                                                                           ..updateContent(
                                                                                             (e) => e[0]
                                                                                               ..type = 'text'
-                                                                                              ..text = '${_model.messages.lastOrNull?.content.firstOrNull?.text}${ResponseDeltaStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)?.delta}',
+                                                                                              ..responseId = ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)?.response.id,
                                                                                           ),
                                                                                       );
                                                                                       safeSetState(() {});
-                                                                                      HapticFeedback.lightImpact();
+                                                                                      // Update responde_id on assistant message
+                                                                                      _model.updateMessagesAtIndex(
+                                                                                        _model.messages.length - 2,
+                                                                                        (e) => e
+                                                                                          ..updateContent(
+                                                                                            (e) => e[0]
+                                                                                              ..type = 'text'
+                                                                                              ..responseId = ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)?.response.id,
+                                                                                          ),
+                                                                                      );
+                                                                                      safeSetState(() {});
                                                                                     } else {
-                                                                                      if (ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)?.type == 'response.completed') {
-                                                                                        for (int loop1Index = 0; loop1Index < ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)!.response.output.length; loop1Index++) {
-                                                                                          final currentLoop1Item = ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)!.response.output[loop1Index];
-                                                                                          if (currentLoop1Item.type == 'message') {
-                                                                                            // Update text on assistant message
-                                                                                            _model.updateMessagesAtIndex(
-                                                                                              _model.messages.length - 1,
-                                                                                              (e) => e
-                                                                                                ..updateContent(
-                                                                                                  (e) => e[0]
-                                                                                                    ..type = 'text'
-                                                                                                    ..text = ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)?.response.output.where((e) => e.type == 'message').toList().firstOrNull?.content.firstOrNull?.text,
-                                                                                                ),
-                                                                                            );
-                                                                                            safeSetState(() {});
-
-                                                                                            await FFAppState().conversationId!.update(createConversationRecordData(
-                                                                                                  lastMessageAt: getCurrentTimestamp,
-                                                                                                ));
-
-                                                                                            var messageRecordReference = MessageRecord.createDoc(FFAppState().conversationId!);
-                                                                                            await messageRecordReference.set(createMessageRecordData(
-                                                                                              userId: currentUserReference,
-                                                                                              role: 'assistant',
-                                                                                              text: currentLoop1Item.content.firstOrNull?.text,
-                                                                                              createdAt: getCurrentTimestamp,
-                                                                                              responseId: ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)?.response.id,
-                                                                                              tokens: ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)?.usage.totalTokens,
-                                                                                            ));
-                                                                                            _model.newMessage2Copy = MessageRecord.getDocumentFromData(
-                                                                                                createMessageRecordData(
-                                                                                                  userId: currentUserReference,
-                                                                                                  role: 'assistant',
-                                                                                                  text: currentLoop1Item.content.firstOrNull?.text,
-                                                                                                  createdAt: getCurrentTimestamp,
-                                                                                                  responseId: ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)?.response.id,
-                                                                                                  tokens: ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)?.usage.totalTokens,
-                                                                                                ),
-                                                                                                messageRecordReference);
-                                                                                            _shouldSetState = true;
-                                                                                          }
-                                                                                        }
+                                                                                      if (ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)?.type == 'response.output_text.delta') {
+                                                                                        // Update text on assistant message
+                                                                                        _model.updateMessagesAtIndex(
+                                                                                          _model.messages.length - 1,
+                                                                                          (e) => e
+                                                                                            ..updateContent(
+                                                                                              (e) => e[0]
+                                                                                                ..type = 'text'
+                                                                                                ..text = '${_model.messages.lastOrNull?.content.firstOrNull?.text}${ResponseDeltaStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)?.delta}',
+                                                                                            ),
+                                                                                        );
+                                                                                        safeSetState(() {});
+                                                                                        HapticFeedback.lightImpact();
                                                                                       } else {
-                                                                                        return;
+                                                                                        if (ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)?.type == 'response.completed') {
+                                                                                          for (int loop1Index = 0; loop1Index < ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)!.response.output.length; loop1Index++) {
+                                                                                            final currentLoop1Item = ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)!.response.output[loop1Index];
+                                                                                            if (currentLoop1Item.type == 'message') {
+                                                                                              // Update text on assistant message
+                                                                                              _model.updateMessagesAtIndex(
+                                                                                                _model.messages.length - 1,
+                                                                                                (e) => e
+                                                                                                  ..updateContent(
+                                                                                                    (e) => e[0]
+                                                                                                      ..type = 'text'
+                                                                                                      ..text = ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)?.response.output.where((e) => e.type == 'message').toList().firstOrNull?.content.firstOrNull?.text,
+                                                                                                  ),
+                                                                                              );
+                                                                                              safeSetState(() {});
+
+                                                                                              await FFAppState().conversationId!.update(createConversationRecordData(
+                                                                                                    lastMessageAt: getCurrentTimestamp,
+                                                                                                  ));
+
+                                                                                              var messageRecordReference = MessageRecord.createDoc(FFAppState().conversationId!);
+                                                                                              await messageRecordReference.set(createMessageRecordData(
+                                                                                                userId: currentUserReference,
+                                                                                                role: 'assistant',
+                                                                                                text: currentLoop1Item.content.firstOrNull?.text,
+                                                                                                createdAt: getCurrentTimestamp,
+                                                                                                responseId: ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)?.response.id,
+                                                                                                tokens: ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)?.usage.totalTokens,
+                                                                                              ));
+                                                                                              _model.newMessage2Copy = MessageRecord.getDocumentFromData(
+                                                                                                  createMessageRecordData(
+                                                                                                    userId: currentUserReference,
+                                                                                                    role: 'assistant',
+                                                                                                    text: currentLoop1Item.content.firstOrNull?.text,
+                                                                                                    createdAt: getCurrentTimestamp,
+                                                                                                    responseId: ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)?.response.id,
+                                                                                                    tokens: ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)?.usage.totalTokens,
+                                                                                                  ),
+                                                                                                  messageRecordReference);
+                                                                                              _shouldSetState = true;
+                                                                                            }
+                                                                                          }
+                                                                                        } else {
+                                                                                          return;
+                                                                                        }
                                                                                       }
                                                                                     }
-                                                                                  }
-                                                                                },
-                                                                                onError: (onErrorInput) async {},
-                                                                                onDone: () async {},
-                                                                              );
-                                                                              // Add the subscription to the active streaming response subscriptions
-                                                                              // in API Manager so that it can be cancelled at a later time.
-                                                                              ApiManager.instance.addActiveStreamingResponseSubscription(
-                                                                                random_data.randomString(
-                                                                                  8,
-                                                                                  8,
-                                                                                  true,
-                                                                                  true,
-                                                                                  true,
-                                                                                ),
-                                                                                streamSubscription,
-                                                                              );
+                                                                                  },
+                                                                                  onError: (onErrorInput) async {},
+                                                                                  onDone: () async {},
+                                                                                );
+                                                                                // Add the subscription to the active streaming response subscriptions
+                                                                                // in API Manager so that it can be cancelled at a later time.
+                                                                                ApiManager.instance.addActiveStreamingResponseSubscription(
+                                                                                  random_data.randomString(
+                                                                                    8,
+                                                                                    8,
+                                                                                    true,
+                                                                                    true,
+                                                                                    true,
+                                                                                  ),
+                                                                                  streamSubscription,
+                                                                                );
+                                                                              }
+
+                                                                              _shouldSetState = true;
                                                                             }
+                                                                          } else {
+                                                                            if (currentLoop1Item.type ==
+                                                                                'message') {
+                                                                              // Update text on assistant message
+                                                                              _model.updateMessagesAtIndex(
+                                                                                _model.messages.length - 1,
+                                                                                (e) => e
+                                                                                  ..updateContent(
+                                                                                    (e) => e[0]
+                                                                                      ..type = 'text'
+                                                                                      ..responseId = ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)?.response.id
+                                                                                      ..text = ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)?.response.output.where((e) => e.type == 'message').toList().firstOrNull?.content.firstOrNull?.text,
+                                                                                  ),
+                                                                              );
+                                                                              safeSetState(() {});
 
-                                                                            _shouldSetState =
-                                                                                true;
-                                                                          }
-                                                                        } else {
-                                                                          if (currentLoop1Item.type ==
-                                                                              'message') {
-                                                                            // Update text on assistant message
-                                                                            _model.updateMessagesAtIndex(
-                                                                              _model.messages.length - 1,
-                                                                              (e) => e
-                                                                                ..updateContent(
-                                                                                  (e) => e[0]
-                                                                                    ..type = 'text'
-                                                                                    ..responseId = ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)?.response.id
-                                                                                    ..text = ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)?.response.output.where((e) => e.type == 'message').toList().firstOrNull?.content.firstOrNull?.text,
-                                                                                ),
-                                                                            );
-                                                                            safeSetState(() {});
+                                                                              await FFAppState().conversationId!.update(createConversationRecordData(
+                                                                                    lastMessageAt: getCurrentTimestamp,
+                                                                                  ));
 
-                                                                            await FFAppState().conversationId!.update(createConversationRecordData(
-                                                                                  lastMessageAt: getCurrentTimestamp,
-                                                                                ));
-
-                                                                            var messageRecordReference2 =
-                                                                                MessageRecord.createDoc(FFAppState().conversationId!);
-                                                                            await messageRecordReference2.set(createMessageRecordData(
-                                                                              userId: currentUserReference,
-                                                                              role: 'assistant',
-                                                                              text: ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)?.response.output.where((e) => e.type == 'message').toList().firstOrNull?.content.firstOrNull?.text,
-                                                                              createdAt: getCurrentTimestamp,
-                                                                              responseId: ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)?.response.id,
-                                                                              tokens: ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)?.usage.totalTokens,
-                                                                            ));
-                                                                            _model.newMessage2 = MessageRecord.getDocumentFromData(
-                                                                                createMessageRecordData(
-                                                                                  userId: currentUserReference,
-                                                                                  role: 'assistant',
-                                                                                  text: ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)?.response.output.where((e) => e.type == 'message').toList().firstOrNull?.content.firstOrNull?.text,
-                                                                                  createdAt: getCurrentTimestamp,
-                                                                                  responseId: ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)?.response.id,
-                                                                                  tokens: ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)?.usage.totalTokens,
-                                                                                ),
-                                                                                messageRecordReference2);
-                                                                            _shouldSetState =
-                                                                                true;
+                                                                              var messageRecordReference2 = MessageRecord.createDoc(FFAppState().conversationId!);
+                                                                              await messageRecordReference2.set(createMessageRecordData(
+                                                                                userId: currentUserReference,
+                                                                                role: 'assistant',
+                                                                                text: ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)?.response.output.where((e) => e.type == 'message').toList().firstOrNull?.content.firstOrNull?.text,
+                                                                                createdAt: getCurrentTimestamp,
+                                                                                responseId: ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)?.response.id,
+                                                                                tokens: ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)?.usage.totalTokens,
+                                                                              ));
+                                                                              _model.newMessage2 = MessageRecord.getDocumentFromData(
+                                                                                  createMessageRecordData(
+                                                                                    userId: currentUserReference,
+                                                                                    role: 'assistant',
+                                                                                    text: ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)?.response.output.where((e) => e.type == 'message').toList().firstOrNull?.content.firstOrNull?.text,
+                                                                                    createdAt: getCurrentTimestamp,
+                                                                                    responseId: ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)?.response.id,
+                                                                                    tokens: ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)?.usage.totalTokens,
+                                                                                  ),
+                                                                                  messageRecordReference2);
+                                                                              _shouldSetState = true;
+                                                                            }
                                                                           }
                                                                         }
+                                                                      } else {
+                                                                        return;
                                                                       }
-                                                                    } else {
-                                                                      return;
                                                                     }
                                                                   }
-                                                                }
-                                                              },
-                                                              onError:
-                                                                  (onErrorInput) async {
-                                                                await showDialog(
-                                                                  context:
-                                                                      context,
-                                                                  builder:
-                                                                      (alertDialogContext) {
-                                                                    return AlertDialog(
-                                                                      title: Text(
-                                                                          'Oooops. Houve um erro por aqui.'),
-                                                                      actions: [
-                                                                        TextButton(
-                                                                          onPressed: () =>
-                                                                              Navigator.pop(alertDialogContext),
-                                                                          child:
-                                                                              Text('Ok'),
-                                                                        ),
-                                                                      ],
-                                                                    );
-                                                                  },
-                                                                );
-                                                              },
-                                                              onDone:
-                                                                  () async {},
-                                                            );
-                                                            // Add the subscription to the active streaming response subscriptions
-                                                            // in API Manager so that it can be cancelled at a later time.
-                                                            ApiManager.instance
-                                                                .addActiveStreamingResponseSubscription(
-                                                              random_data
-                                                                  .randomString(
-                                                                0,
-                                                                0,
-                                                                true,
-                                                                true,
-                                                                false,
-                                                              ),
-                                                              streamSubscription,
-                                                            );
-                                                          }
+                                                                },
+                                                                onError:
+                                                                    (onErrorInput) async {
+                                                                  await showDialog(
+                                                                    context:
+                                                                        context,
+                                                                    builder:
+                                                                        (alertDialogContext) {
+                                                                      return AlertDialog(
+                                                                        title: Text(
+                                                                            'Oooops. Houve um erro por aqui.'),
+                                                                        actions: [
+                                                                          TextButton(
+                                                                            onPressed: () =>
+                                                                                Navigator.pop(alertDialogContext),
+                                                                            child:
+                                                                                Text('Ok'),
+                                                                          ),
+                                                                        ],
+                                                                      );
+                                                                    },
+                                                                  );
+                                                                },
+                                                                onDone:
+                                                                    () async {},
+                                                              );
+                                                              // Add the subscription to the active streaming response subscriptions
+                                                              // in API Manager so that it can be cancelled at a later time.
+                                                              ApiManager
+                                                                  .instance
+                                                                  .addActiveStreamingResponseSubscription(
+                                                                random_data
+                                                                    .randomString(
+                                                                  0,
+                                                                  0,
+                                                                  true,
+                                                                  true,
+                                                                  false,
+                                                                ),
+                                                                streamSubscription,
+                                                              );
+                                                            }
 
-                                                          // Scroll to end of list view
-                                                          await _model
-                                                              .listViewController
-                                                              ?.animateTo(
-                                                            _model
-                                                                .listViewController!
-                                                                .position
-                                                                .maxScrollExtent,
+                                                            // Scroll to end of list view
+                                                            await _model
+                                                                .listViewController
+                                                                ?.animateTo(
+                                                              _model
+                                                                  .listViewController!
+                                                                  .position
+                                                                  .maxScrollExtent,
+                                                              duration: Duration(
+                                                                  milliseconds:
+                                                                      300),
+                                                              curve:
+                                                                  Curves.ease,
+                                                            );
+
+                                                            safeSetState(() {});
+                                                          },
+                                                          child:
+                                                              AnimatedContainer(
+                                                            key: ValueKey(
+                                                                'Container_1cyh'),
                                                             duration: Duration(
                                                                 milliseconds:
-                                                                    300),
-                                                            curve: Curves.ease,
-                                                          );
-
-                                                          safeSetState(() {});
-                                                        },
-                                                        child:
-                                                            AnimatedContainer(
-                                                          key: ValueKey(
-                                                              'Container_1cyh'),
-                                                          duration: Duration(
-                                                              milliseconds:
-                                                                  100),
-                                                          curve:
-                                                              Curves.easeInOut,
-                                                          width: 30.0,
-                                                          height: 30.0,
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            color:
-                                                                valueOrDefault<
-                                                                    Color>(
-                                                              _model.sendMouseRegionHovered
-                                                                  ? FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .secondary
-                                                                  : FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .tertiary,
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .tertiary,
+                                                                    100),
+                                                            curve: Curves
+                                                                .easeInOut,
+                                                            width: 30.0,
+                                                            height: 30.0,
+                                                            decoration:
+                                                                BoxDecoration(
+                                                              color:
+                                                                  valueOrDefault<
+                                                                      Color>(
+                                                                _model.sendMouseRegionHovered
+                                                                    ? FlutterFlowTheme.of(
+                                                                            context)
+                                                                        .secondary
+                                                                    : FlutterFlowTheme.of(
+                                                                            context)
+                                                                        .tertiary,
+                                                                FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .tertiary,
+                                                              ),
+                                                              shape: BoxShape
+                                                                  .circle,
                                                             ),
-                                                            shape:
-                                                                BoxShape.circle,
-                                                          ),
-                                                          child: Align(
-                                                            alignment:
-                                                                AlignmentDirectional(
-                                                                    0.0, 0.0),
-                                                            child: Icon(
-                                                              Icons
-                                                                  .arrow_upward,
-                                                              color: FlutterFlowTheme
-                                                                      .of(context)
-                                                                  .info,
-                                                              size: 16.0,
+                                                            child: Align(
+                                                              alignment:
+                                                                  AlignmentDirectional(
+                                                                      0.0, 0.0),
+                                                              child: Icon(
+                                                                Icons
+                                                                    .arrow_upward,
+                                                                color: FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .info,
+                                                                size: 16.0,
+                                                              ),
                                                             ),
                                                           ),
                                                         ),
@@ -2243,6 +2298,33 @@ class _ChatWidgetState extends State<ChatWidget> with TickerProviderStateMixin {
                                 ),
                               ),
                             ),
+                          Align(
+                            alignment: AlignmentDirectional(0.0, -1.0),
+                            child: Padding(
+                              padding: EdgeInsetsDirectional.fromSTEB(
+                                  0.0, 5.0, 0.0, 0.0),
+                              child: Text(
+                                'Hello World',
+                                style: FlutterFlowTheme.of(context)
+                                    .titleLarge
+                                    .override(
+                                      font: GoogleFonts.inter(
+                                        fontWeight: FontWeight.normal,
+                                        fontStyle: FlutterFlowTheme.of(context)
+                                            .titleLarge
+                                            .fontStyle,
+                                      ),
+                                      color: FlutterFlowTheme.of(context)
+                                          .secondaryBackground,
+                                      letterSpacing: 0.0,
+                                      fontWeight: FontWeight.normal,
+                                      fontStyle: FlutterFlowTheme.of(context)
+                                          .titleLarge
+                                          .fontStyle,
+                                    ),
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                     ),

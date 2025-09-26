@@ -602,181 +602,185 @@ class _ChatWidgetState extends State<ChatWidget> with TickerProviderStateMixin {
                                             Column(
                                               mainAxisSize: MainAxisSize.max,
                                               children: [
-                                                if (false)
-                                                  Builder(
-                                                    builder: (context) {
-                                                      if (_model.isRecording) {
-                                                        return FlutterFlowIconButton(
-                                                          borderRadius: 20.0,
-                                                          buttonSize: 40.0,
-                                                          hoverColor:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .accent4,
-                                                          icon: Icon(
-                                                            Icons.stop_circle,
-                                                            color: FlutterFlowTheme
+                                                Builder(
+                                                  builder: (context) {
+                                                    if (_model.isRecording) {
+                                                      return FlutterFlowIconButton(
+                                                        borderRadius: 20.0,
+                                                        buttonSize: 40.0,
+                                                        hoverColor:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .accent4,
+                                                        icon: Icon(
+                                                          Icons.stop_circle,
+                                                          color: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .info,
+                                                          size: 24.0,
+                                                        ),
+                                                        onPressed: () async {
+                                                          // Stop the recording
+                                                          await stopAudioRecording(
+                                                            audioRecorder: _model
+                                                                .audioRecorder,
+                                                            audioName:
+                                                                'recordedFileBytes',
+                                                            onRecordingComplete:
+                                                                (audioFilePath,
+                                                                    audioBytes) {
+                                                              _model.recordedAudio =
+                                                                  audioFilePath;
+                                                              _model.recordedFileBytes =
+                                                                  audioBytes;
+                                                            },
+                                                          );
+
+                                                          _model.isProcessingAudio =
+                                                              true;
+                                                          safeSetState(() {});
+                                                          if (isWeb) {
+                                                            // Set recordedAudioFile
+                                                            _model.recordedAudioFile =
+                                                                _model
+                                                                    .recordedFileBytes;
+                                                            safeSetState(() {});
+                                                          } else {
+                                                            // Fix audio format
+                                                            _model.renamedAudioFile =
+                                                                await actions
+                                                                    .renameAudio(
+                                                              _model
+                                                                  .recordedFileBytes,
+                                                              _model
+                                                                  .recordedAudio!,
+                                                            );
+                                                            // Set recordedAudioFile
+                                                            _model.recordedAudioFile =
+                                                                _model
+                                                                    .renamedAudioFile;
+                                                            safeSetState(() {});
+                                                          }
+
+                                                          // Set isRecording to false
+                                                          _model.isRecording =
+                                                              false;
+                                                          _model.isProcessingAudio =
+                                                              false;
+                                                          safeSetState(() {});
+                                                          // Transcribe audio
+                                                          _model.whisperResult =
+                                                              await OpenAIAPIGroup
+                                                                  .createTranscriptionCall
+                                                                  .call(
+                                                            apiKey: FFAppState()
+                                                                .openAIAPIKey,
+                                                            file: _model
+                                                                .recordedAudioFile,
+                                                          );
+
+                                                          if ((_model
+                                                                  .whisperResult
+                                                                  ?.succeeded ??
+                                                              true)) {
+                                                            // Update the text field with the API result
+                                                            safeSetState(() {
+                                                              _model.userMessageTextController
+                                                                      ?.text =
+                                                                  getJsonField(
+                                                                (_model.whisperResult
+                                                                        ?.jsonBody ??
+                                                                    ''),
+                                                                r'''$.text''',
+                                                              ).toString();
+                                                            });
+                                                          } else {
+                                                            ScaffoldMessenger
                                                                     .of(context)
-                                                                .info,
-                                                            size: 24.0,
-                                                          ),
-                                                          onPressed: () async {
-                                                            // Stop the recording
-                                                            await stopAudioRecording(
-                                                              audioRecorder: _model
-                                                                  .audioRecorder,
-                                                              audioName:
-                                                                  'recordedFileBytes',
-                                                              onRecordingComplete:
-                                                                  (audioFilePath,
-                                                                      audioBytes) {
-                                                                _model.recordedAudio =
-                                                                    audioFilePath;
-                                                                _model.recordedFileBytes =
-                                                                    audioBytes;
-                                                              },
-                                                            );
-
-                                                            final selectedMedia =
-                                                                await selectMediaWithSourceBottomSheet(
-                                                              context: context,
-                                                              allowPhoto: true,
-                                                            );
-                                                            if (selectedMedia !=
-                                                                    null &&
-                                                                selectedMedia.every((m) =>
-                                                                    validateFileFormat(
-                                                                        m.storagePath,
-                                                                        context))) {
-                                                              safeSetState(() =>
-                                                                  _model.isDataUploading_uploadDataNec =
-                                                                      true);
-                                                              var selectedUploadedFiles =
-                                                                  <FFUploadedFile>[];
-
-                                                              var downloadUrls =
-                                                                  <String>[];
-                                                              try {
-                                                                selectedUploadedFiles =
-                                                                    selectedMedia
-                                                                        .map((m) =>
-                                                                            FFUploadedFile(
-                                                                              name: m.storagePath.split('/').last,
-                                                                              bytes: m.bytes,
-                                                                              height: m.dimensions?.height,
-                                                                              width: m.dimensions?.width,
-                                                                              blurHash: m.blurHash,
-                                                                            ))
-                                                                        .toList();
-
-                                                                downloadUrls = (await Future
-                                                                        .wait(
-                                                                  selectedMedia
-                                                                      .map(
-                                                                    (m) async =>
-                                                                        await uploadData(
-                                                                            m.storagePath,
-                                                                            m.bytes),
+                                                                .showSnackBar(
+                                                              SnackBar(
+                                                                content: Text(
+                                                                  functions
+                                                                      .printUploadedFile(
+                                                                          _model
+                                                                              .recordedFileBytes),
+                                                                  style:
+                                                                      TextStyle(
+                                                                    color: FlutterFlowTheme.of(
+                                                                            context)
+                                                                        .primaryText,
                                                                   ),
-                                                                ))
-                                                                    .where((u) =>
-                                                                        u !=
-                                                                        null)
-                                                                    .map((u) =>
-                                                                        u!)
-                                                                    .toList();
-                                                              } finally {
-                                                                _model.isDataUploading_uploadDataNec =
-                                                                    false;
-                                                              }
-                                                              if (selectedUploadedFiles
-                                                                          .length ==
-                                                                      selectedMedia
-                                                                          .length &&
-                                                                  downloadUrls
-                                                                          .length ==
-                                                                      selectedMedia
-                                                                          .length) {
-                                                                safeSetState(
-                                                                    () {
-                                                                  _model.uploadedLocalFile_uploadDataNec =
-                                                                      selectedUploadedFiles
-                                                                          .first;
-                                                                  _model.uploadedFileUrl_uploadDataNec =
-                                                                      downloadUrls
-                                                                          .first;
-                                                                });
-                                                              } else {
-                                                                safeSetState(
-                                                                    () {});
-                                                                return;
-                                                              }
-                                                            }
-
-                                                            if (isWeb) {
-                                                              // Set recordedAudioFile
-                                                              _model.recordedAudioFile =
-                                                                  _model
-                                                                      .recordedFileBytes;
-                                                              safeSetState(
-                                                                  () {});
-                                                            } else {
-                                                              // Fix audio format
-                                                              _model.renamedAudioFile =
-                                                                  await actions
-                                                                      .renameAudio(
-                                                                _model
-                                                                    .recordedFileBytes,
-                                                                _model
-                                                                    .recordedAudio!,
-                                                              );
-                                                              // Set recordedAudioFile
-                                                              _model.recordedAudioFile =
-                                                                  _model
-                                                                      .renamedAudioFile;
-                                                              safeSetState(
-                                                                  () {});
-                                                            }
-
-                                                            // Set isRecording to false
-                                                            _model.isRecording =
-                                                                false;
-                                                            safeSetState(() {});
-
-                                                            safeSetState(() {});
-                                                          },
-                                                        );
-                                                      } else {
-                                                        return FlutterFlowIconButton(
-                                                          borderColor: Colors
-                                                              .transparent,
-                                                          borderRadius: 20.0,
-                                                          buttonSize: 40.0,
-                                                          hoverColor:
-                                                              Color(0x40FFFFFF),
-                                                          icon: Icon(
-                                                            Icons.mic,
-                                                            color: FlutterFlowTheme
-                                                                    .of(context)
-                                                                .info,
-                                                            size: 20.0,
-                                                          ),
-                                                          onPressed: () async {
-                                                            _model.isRecording =
-                                                                true;
-                                                            safeSetState(() {});
-                                                            // Capture user input
-                                                            await startAudioRecording(
-                                                              context,
-                                                              audioRecorder: _model
-                                                                      .audioRecorder ??=
-                                                                  AudioRecorder(),
+                                                                ),
+                                                                duration: Duration(
+                                                                    milliseconds:
+                                                                        4000),
+                                                                backgroundColor:
+                                                                    FlutterFlowTheme.of(
+                                                                            context)
+                                                                        .secondary,
+                                                              ),
                                                             );
-                                                          },
-                                                        );
-                                                      }
-                                                    },
-                                                  ),
+                                                            // Show failure snack
+                                                            ScaffoldMessenger
+                                                                    .of(context)
+                                                                .showSnackBar(
+                                                              SnackBar(
+                                                                content: Text(
+                                                                  (_model.whisperResult
+                                                                          ?.bodyText ??
+                                                                      ''),
+                                                                  style:
+                                                                      TextStyle(
+                                                                    color: FlutterFlowTheme.of(
+                                                                            context)
+                                                                        .secondaryBackground,
+                                                                  ),
+                                                                ),
+                                                                duration: Duration(
+                                                                    milliseconds:
+                                                                        5000),
+                                                                backgroundColor:
+                                                                    FlutterFlowTheme.of(
+                                                                            context)
+                                                                        .secondary,
+                                                              ),
+                                                            );
+                                                          }
+
+                                                          safeSetState(() {});
+                                                        },
+                                                      );
+                                                    } else {
+                                                      return FlutterFlowIconButton(
+                                                        borderColor:
+                                                            Colors.transparent,
+                                                        borderRadius: 20.0,
+                                                        buttonSize: 40.0,
+                                                        hoverColor:
+                                                            Color(0x40FFFFFF),
+                                                        icon: Icon(
+                                                          Icons.mic,
+                                                          color: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .info,
+                                                          size: 20.0,
+                                                        ),
+                                                        onPressed: () async {
+                                                          _model.isRecording =
+                                                              true;
+                                                          safeSetState(() {});
+                                                          // Capture user input
+                                                          await startAudioRecording(
+                                                            context,
+                                                            audioRecorder: _model
+                                                                    .audioRecorder ??=
+                                                                AudioRecorder(),
+                                                          );
+                                                        },
+                                                      );
+                                                    }
+                                                  },
+                                                ),
                                                 InkWell(
                                                   splashColor:
                                                       Colors.transparent,
@@ -820,11 +824,6 @@ class _ChatWidgetState extends State<ChatWidget> with TickerProviderStateMixin {
                                                       var downloadUrls =
                                                           <String>[];
                                                       try {
-                                                        showUploadMessage(
-                                                          context,
-                                                          'Uploading file...',
-                                                          showLoading: true,
-                                                        );
                                                         selectedUploadedFiles =
                                                             selectedMedia
                                                                 .map((m) =>
@@ -861,9 +860,6 @@ class _ChatWidgetState extends State<ChatWidget> with TickerProviderStateMixin {
                                                                 .map((u) => u!)
                                                                 .toList();
                                                       } finally {
-                                                        ScaffoldMessenger.of(
-                                                                context)
-                                                            .hideCurrentSnackBar();
                                                         _model.isDataUploading_uploadDataQ38 =
                                                             false;
                                                       }
@@ -882,14 +878,8 @@ class _ChatWidgetState extends State<ChatWidget> with TickerProviderStateMixin {
                                                               downloadUrls
                                                                   .first;
                                                         });
-                                                        showUploadMessage(
-                                                            context,
-                                                            'Success!');
                                                       } else {
                                                         safeSetState(() {});
-                                                        showUploadMessage(
-                                                            context,
-                                                            'Failed to upload data');
                                                         return;
                                                       }
                                                     }
@@ -918,6 +908,7 @@ class _ChatWidgetState extends State<ChatWidget> with TickerProviderStateMixin {
                                                                   url: _model
                                                                       .uploadedFileUrl_uploadDataQ38,
                                                                 ),
+                                                                text: 'img',
                                                               )),
                                                             ),
                                                         );
@@ -929,7 +920,7 @@ class _ChatWidgetState extends State<ChatWidget> with TickerProviderStateMixin {
                                                           role: 'user',
                                                           content: functions
                                                               .buildContent(
-                                                                  null,
+                                                                  'img',
                                                                   _model
                                                                       .uploadedFileUrl_uploadDataQ38),
                                                           visible: false,
@@ -1068,6 +1059,17 @@ class _ChatWidgetState extends State<ChatWidget> with TickerProviderStateMixin {
                                                                             r'''$.id''',
                                                                           ).toString(),
                                                                         ),
+                                                                        text:
+                                                                            getJsonField(
+                                                                          (_model.file?.jsonBody ??
+                                                                              ''),
+                                                                          r'''$.filename''',
+                                                                        ).toString(),
+                                                                        imageUrl:
+                                                                            ImageUrlStruct(
+                                                                          url: FFAppConstants
+                                                                              .docFileIconUrl,
+                                                                        ),
                                                                       )),
                                                                     ),
                                                                 );
@@ -1079,17 +1081,19 @@ class _ChatWidgetState extends State<ChatWidget> with TickerProviderStateMixin {
                                                                     ThreadMessageStruct(
                                                                   role: 'user',
                                                                   content: functions.buildContentWithFile(
-                                                                      '${getJsonField(
+                                                                      getJsonField(
                                                                         (_model.file?.jsonBody ??
                                                                             ''),
                                                                         r'''$.filename''',
-                                                                      ).toString()} adicionado.',
+                                                                      ).toString(),
                                                                       getJsonField(
                                                                         (_model.file?.jsonBody ??
                                                                             ''),
                                                                         r'''$.id''',
-                                                                      ).toString()),
-                                                                  visible: true,
+                                                                      ).toString(),
+                                                                      FFAppConstants.docFileIconUrl),
+                                                                  visible:
+                                                                      false,
                                                                 ));
                                                                 safeSetState(
                                                                     () {});
@@ -1183,12 +1187,14 @@ class _ChatWidgetState extends State<ChatWidget> with TickerProviderStateMixin {
                                                                 if ((_model
                                                                         .messages
                                                                         .isNotEmpty) &&
-                                                                    _model
+                                                                    (_model
                                                                         .messages
                                                                         .lastOrNull!
                                                                         .content
-                                                                        .firstOrNull!
-                                                                        .hasImageUrl())
+                                                                        .where((e) =>
+                                                                            e.hasImageUrl())
+                                                                        .toList()
+                                                                        .isNotEmpty))
                                                                   Padding(
                                                                     padding: EdgeInsetsDirectional
                                                                         .fromSTEB(
@@ -1216,14 +1222,63 @@ class _ChatWidgetState extends State<ChatWidget> with TickerProviderStateMixin {
                                                                             children:
                                                                                 List.generate(messageWithImage.length, (messageWithImageIndex) {
                                                                               final messageWithImageItem = messageWithImage[messageWithImageIndex];
-                                                                              return ClipRRect(
-                                                                                borderRadius: BorderRadius.circular(16.0),
-                                                                                child: Image.network(
-                                                                                  messageWithImageItem.imageUrl.url,
-                                                                                  width: 72.0,
-                                                                                  height: 80.0,
-                                                                                  fit: BoxFit.cover,
-                                                                                ),
+                                                                              return Stack(
+                                                                                alignment: AlignmentDirectional(1.0, -1.0),
+                                                                                children: [
+                                                                                  Column(
+                                                                                    mainAxisSize: MainAxisSize.max,
+                                                                                    children: [
+                                                                                      ClipRRect(
+                                                                                        borderRadius: BorderRadius.circular(16.0),
+                                                                                        child: Image.network(
+                                                                                          messageWithImageItem.imageUrl.url,
+                                                                                          width: 72.0,
+                                                                                          height: 80.0,
+                                                                                          fit: BoxFit.cover,
+                                                                                        ),
+                                                                                      ),
+                                                                                      Text(
+                                                                                        valueOrDefault<String>(
+                                                                                          messageWithImageItem.text,
+                                                                                          '-',
+                                                                                        ),
+                                                                                        style: FlutterFlowTheme.of(context).bodyMedium.override(
+                                                                                              font: GoogleFonts.inter(
+                                                                                                fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
+                                                                                                fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                              ),
+                                                                                              letterSpacing: 0.0,
+                                                                                              fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
+                                                                                              fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                            ),
+                                                                                      ),
+                                                                                    ],
+                                                                                  ),
+                                                                                  Padding(
+                                                                                    padding: EdgeInsetsDirectional.fromSTEB(0.0, 3.0, 3.0, 0.0),
+                                                                                    child: InkWell(
+                                                                                      splashColor: Colors.transparent,
+                                                                                      focusColor: Colors.transparent,
+                                                                                      hoverColor: Colors.transparent,
+                                                                                      highlightColor: Colors.transparent,
+                                                                                      onTap: () async {
+                                                                                        _model.updateMessagesAtIndex(
+                                                                                          _model.messages.length - 1,
+                                                                                          (e) => e
+                                                                                            ..updateContent(
+                                                                                              (e) => e.remove(messageWithImageItem),
+                                                                                            ),
+                                                                                        );
+                                                                                        safeSetState(() {});
+                                                                                      },
+                                                                                      child: Icon(
+                                                                                        Icons.delete,
+                                                                                        color: FlutterFlowTheme.of(context).secondary,
+                                                                                        size: 16.0,
+                                                                                      ),
+                                                                                    ),
+                                                                                  ),
+                                                                                ],
                                                                               );
                                                                             }).divide(SizedBox(width: 8.0)).around(SizedBox(width: 8.0)),
                                                                           ),
@@ -1425,7 +1480,9 @@ class _ChatWidgetState extends State<ChatWidget> with TickerProviderStateMixin {
                                                                             0.0,
                                                                             0.0),
                                                                     child: Text(
-                                                                      'Listening...',
+                                                                      _model.isProcessingAudio
+                                                                          ? 'Processando áudio...'
+                                                                          : 'Ouvindo...',
                                                                       style: FlutterFlowTheme.of(
                                                                               context)
                                                                           .bodyMedium
@@ -1466,9 +1523,10 @@ class _ChatWidgetState extends State<ChatWidget> with TickerProviderStateMixin {
                                                               MouseCursor.defer,
                                                       child: Visibility(
                                                         visible: !(_model
-                                                                .isDataUploading_uploadDataQ38 &&
+                                                                .isDataUploading_uploadDataQ38 ||
                                                             _model
-                                                                .isDataUploading_uploadData5tf),
+                                                                .isDataUploading_uploadData5tf ||
+                                                            _model.isRecording),
                                                         child: InkWell(
                                                           splashColor: Colors
                                                               .transparent,
@@ -2304,7 +2362,7 @@ class _ChatWidgetState extends State<ChatWidget> with TickerProviderStateMixin {
                               padding: EdgeInsetsDirectional.fromSTEB(
                                   0.0, 5.0, 0.0, 0.0),
                               child: Text(
-                                'Hello World',
+                                FFAppState().chatName,
                                 style: FlutterFlowTheme.of(context)
                                     .titleLarge
                                     .override(

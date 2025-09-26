@@ -51,6 +51,8 @@ class ChatModel extends FlutterFlowModel<ChatWidget> {
           int index, Function(FunctionRecord) updateFn) =>
       functionList[index] = updateFn(functionList[index]);
 
+  bool isProcessingAudio = false;
+
   ///  State fields for stateful widgets in this page.
 
   // Stores action output result for [Firestore Query - Query a collection] action in Chat widget.
@@ -74,13 +76,10 @@ class ChatModel extends FlutterFlowModel<ChatWidget> {
   String? recordedAudio;
   FFUploadedFile recordedFileBytes =
       FFUploadedFile(bytes: Uint8List.fromList([]));
-  bool isDataUploading_uploadDataNec = false;
-  FFUploadedFile uploadedLocalFile_uploadDataNec =
-      FFUploadedFile(bytes: Uint8List.fromList([]));
-  String uploadedFileUrl_uploadDataNec = '';
-
   // Stores action output result for [Custom Action - renameAudio] action in StopButton widget.
   FFUploadedFile? renamedAudioFile;
+  // Stores action output result for [Backend Call - API (createTranscription)] action in StopButton widget.
+  ApiCallResponse? whisperResult;
   AudioRecorder? audioRecorder;
   bool isDataUploading_uploadDataQ38 = false;
   FFUploadedFile uploadedLocalFile_uploadDataQ38 =

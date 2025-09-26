@@ -63,6 +63,7 @@ List<ContentStruct> buildContent(
 List<ContentStruct> buildContentWithFile(
   String? text,
   String? fileId,
+  String? imgPath,
 ) {
   List<ContentStruct> contents = [];
 
@@ -71,13 +72,15 @@ List<ContentStruct> buildContentWithFile(
     return [ContentStruct(type: "text", text: "")];
   }
 
-  if (fileId != null) {
+  if (fileId != null && imgPath != null) {
     contents.add(ContentStruct(
         type: "input_file",
-        inputFile: InputFileStruct(type: "input_file", fileId: fileId)));
+        inputFile: InputFileStruct(type: "input_file", fileId: fileId),
+        imageUrl: ImageUrlStruct(url: imgPath),
+        text: text == null ? "" : text));
   }
 
-  if (text != null) {
+  if (text != null && fileId == null) {
     contents.add(ContentStruct(type: "text", text: text));
   }
 
@@ -680,7 +683,7 @@ String? supportMessage(
 
   if (instance != null) {
     result +=
-        "🏢 " + instance.instanceName + " <" + instance.reference.id + ">\n";
+        "🏢  " + instance.instanceName + " <" + instance.reference.id + ">\n";
   }
   if (prompt != null) {
     result += "⚙️ " + prompt.promptName + " <" + prompt.reference.id + ">\n";

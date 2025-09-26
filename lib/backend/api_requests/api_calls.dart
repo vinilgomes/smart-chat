@@ -631,6 +631,7 @@ class CreateTranscriptionCall {
       params: {
         'file': file,
         'model': "whisper-1",
+        'language': "pt",
       },
       bodyType: BodyType.MULTIPART,
       returnBody: true,

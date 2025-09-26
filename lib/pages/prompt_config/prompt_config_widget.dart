@@ -2797,504 +2797,505 @@ class _PromptConfigWidgetState extends State<PromptConfigWidget> {
                                           ),
                                         ),
                                       ),
-                                    Padding(
-                                      padding: EdgeInsets.all(16.0),
-                                      child: Container(
-                                        width: double.infinity,
-                                        decoration: BoxDecoration(
-                                          color: FlutterFlowTheme.of(context)
-                                              .secondaryBackground,
-                                          borderRadius:
-                                              BorderRadius.circular(12.0),
-                                        ),
-                                        child: Form(
-                                          key: _model.formKey,
-                                          autovalidateMode:
-                                              AutovalidateMode.disabled,
-                                          child: Padding(
-                                            padding: EdgeInsets.all(16.0),
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.max,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  'Funções',
-                                                  style: FlutterFlowTheme.of(
-                                                          context)
-                                                      .headlineSmall
-                                                      .override(
-                                                        font: GoogleFonts
-                                                            .readexPro(
-                                                          fontWeight:
-                                                              FontWeight.w600,
-                                                          fontStyle:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .headlineSmall
-                                                                  .fontStyle,
-                                                        ),
-                                                        letterSpacing: 0.0,
-                                                        fontWeight:
-                                                            FontWeight.w600,
-                                                        fontStyle:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .headlineSmall
-                                                                .fontStyle,
-                                                      ),
-                                                ),
-                                                Text(
-                                                  'Funções externas que complementam a resposta do modelo.\n',
-                                                  style: FlutterFlowTheme.of(
-                                                          context)
-                                                      .labelMedium
-                                                      .override(
-                                                        font: GoogleFonts.inter(
-                                                          fontWeight:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .labelMedium
-                                                                  .fontWeight,
-                                                          fontStyle:
-                                                              FontStyle.italic,
-                                                        ),
-                                                        letterSpacing: 0.0,
-                                                        fontWeight:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .labelMedium
-                                                                .fontWeight,
-                                                        fontStyle:
-                                                            FontStyle.italic,
-                                                      ),
-                                                ),
-                                                Row(
+                                    if (valueOrDefault<bool>(
+                                        currentUserDocument?.isAdmin, false))
+                                      Padding(
+                                        padding: EdgeInsets.all(16.0),
+                                        child: AuthUserStreamWidget(
+                                          builder: (context) => Container(
+                                            width: double.infinity,
+                                            decoration: BoxDecoration(
+                                              color:
+                                                  FlutterFlowTheme.of(context)
+                                                      .secondaryBackground,
+                                              borderRadius:
+                                                  BorderRadius.circular(12.0),
+                                            ),
+                                            child: Form(
+                                              key: _model.formKey,
+                                              autovalidateMode:
+                                                  AutovalidateMode.disabled,
+                                              child: Padding(
+                                                padding: EdgeInsets.all(16.0),
+                                                child: Column(
                                                   mainAxisSize:
                                                       MainAxisSize.max,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
                                                   children: [
-                                                    StreamBuilder<
-                                                        List<FunctionRecord>>(
-                                                      stream:
-                                                          queryFunctionRecord(
-                                                        queryBuilder:
-                                                            (functionRecord) =>
-                                                                functionRecord
-                                                                    .orderBy(
-                                                                        'name'),
-                                                      ),
-                                                      builder:
-                                                          (context, snapshot) {
-                                                        // Customize what your widget looks like when it's loading.
-                                                        if (!snapshot.hasData) {
-                                                          return Center(
-                                                            child: SizedBox(
-                                                              width: 50.0,
-                                                              height: 50.0,
-                                                              child:
-                                                                  CircularProgressIndicator(
-                                                                valueColor:
-                                                                    AlwaysStoppedAnimation<
-                                                                        Color>(
+                                                    Text(
+                                                      'Funções',
+                                                      style: FlutterFlowTheme
+                                                              .of(context)
+                                                          .headlineSmall
+                                                          .override(
+                                                            font: GoogleFonts
+                                                                .readexPro(
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w600,
+                                                              fontStyle: FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .headlineSmall
+                                                                  .fontStyle,
+                                                            ),
+                                                            letterSpacing: 0.0,
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                            fontStyle:
+                                                                FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .headlineSmall
+                                                                    .fontStyle,
+                                                          ),
+                                                    ),
+                                                    Text(
+                                                      'Funções externas que complementam a resposta do modelo.\n',
+                                                      style: FlutterFlowTheme
+                                                              .of(context)
+                                                          .labelMedium
+                                                          .override(
+                                                            font: GoogleFonts
+                                                                .inter(
+                                                              fontWeight:
                                                                   FlutterFlowTheme.of(
                                                                           context)
-                                                                      .primary,
-                                                                ),
-                                                              ),
+                                                                      .labelMedium
+                                                                      .fontWeight,
+                                                              fontStyle:
+                                                                  FontStyle
+                                                                      .italic,
                                                             ),
-                                                          );
-                                                        }
-                                                        List<FunctionRecord>
-                                                            functionFunctionRecordList =
-                                                            snapshot.data!;
-
-                                                        return FlutterFlowDropDown<
-                                                            String>(
-                                                          controller: _model
-                                                                  .functionValueController ??=
-                                                              FormFieldController<
-                                                                  String>(null),
-                                                          options:
-                                                              functionFunctionRecordList
-                                                                  .map((e) =>
-                                                                      e.name)
-                                                                  .toList(),
-                                                          onChanged: (val) =>
-                                                              safeSetState(() =>
-                                                                  _model.functionValue =
-                                                                      val),
-                                                          width: 200.0,
-                                                          height: 40.0,
-                                                          textStyle:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .bodyMedium
-                                                                  .override(
-                                                                    font: GoogleFonts
-                                                                        .inter(
-                                                                      fontWeight: FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .bodyMedium
-                                                                          .fontWeight,
-                                                                      fontStyle: FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .bodyMedium
-                                                                          .fontStyle,
-                                                                    ),
-                                                                    letterSpacing:
-                                                                        0.0,
-                                                                    fontWeight: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .bodyMedium
-                                                                        .fontWeight,
-                                                                    fontStyle: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .bodyMedium
-                                                                        .fontStyle,
-                                                                  ),
-                                                          hintText:
-                                                              'Selecione...',
-                                                          icon: Icon(
-                                                            Icons
-                                                                .keyboard_arrow_down_rounded,
-                                                            color: FlutterFlowTheme
-                                                                    .of(context)
-                                                                .secondaryText,
-                                                            size: 24.0,
+                                                            letterSpacing: 0.0,
+                                                            fontWeight:
+                                                                FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .labelMedium
+                                                                    .fontWeight,
+                                                            fontStyle: FontStyle
+                                                                .italic,
                                                           ),
+                                                    ),
+                                                    Row(
+                                                      mainAxisSize:
+                                                          MainAxisSize.max,
+                                                      children: [
+                                                        StreamBuilder<
+                                                            List<
+                                                                FunctionRecord>>(
+                                                          stream:
+                                                              queryFunctionRecord(
+                                                            queryBuilder:
+                                                                (functionRecord) =>
+                                                                    functionRecord
+                                                                        .orderBy(
+                                                                            'name'),
+                                                          ),
+                                                          builder: (context,
+                                                              snapshot) {
+                                                            // Customize what your widget looks like when it's loading.
+                                                            if (!snapshot
+                                                                .hasData) {
+                                                              return Center(
+                                                                child: SizedBox(
+                                                                  width: 50.0,
+                                                                  height: 50.0,
+                                                                  child:
+                                                                      CircularProgressIndicator(
+                                                                    valueColor:
+                                                                        AlwaysStoppedAnimation<
+                                                                            Color>(
+                                                                      FlutterFlowTheme.of(
+                                                                              context)
+                                                                          .primary,
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            }
+                                                            List<FunctionRecord>
+                                                                functionFunctionRecordList =
+                                                                snapshot.data!;
+
+                                                            return FlutterFlowDropDown<
+                                                                String>(
+                                                              controller: _model
+                                                                      .functionValueController ??=
+                                                                  FormFieldController<
+                                                                          String>(
+                                                                      null),
+                                                              options:
+                                                                  functionFunctionRecordList
+                                                                      .map((e) =>
+                                                                          e.name)
+                                                                      .toList(),
+                                                              onChanged: (val) =>
+                                                                  safeSetState(() =>
+                                                                      _model.functionValue =
+                                                                          val),
+                                                              width: 200.0,
+                                                              height: 40.0,
+                                                              textStyle:
+                                                                  FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .bodyMedium
+                                                                      .override(
+                                                                        font: GoogleFonts
+                                                                            .inter(
+                                                                          fontWeight: FlutterFlowTheme.of(context)
+                                                                              .bodyMedium
+                                                                              .fontWeight,
+                                                                          fontStyle: FlutterFlowTheme.of(context)
+                                                                              .bodyMedium
+                                                                              .fontStyle,
+                                                                        ),
+                                                                        letterSpacing:
+                                                                            0.0,
+                                                                        fontWeight: FlutterFlowTheme.of(context)
+                                                                            .bodyMedium
+                                                                            .fontWeight,
+                                                                        fontStyle: FlutterFlowTheme.of(context)
+                                                                            .bodyMedium
+                                                                            .fontStyle,
+                                                                      ),
+                                                              hintText:
+                                                                  'Selecione...',
+                                                              icon: Icon(
+                                                                Icons
+                                                                    .keyboard_arrow_down_rounded,
+                                                                color: FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .secondaryText,
+                                                                size: 24.0,
+                                                              ),
+                                                              fillColor:
+                                                                  FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .alternate,
+                                                              elevation: 2.0,
+                                                              borderColor: Colors
+                                                                  .transparent,
+                                                              borderWidth: 0.0,
+                                                              borderRadius: 8.0,
+                                                              margin:
+                                                                  EdgeInsetsDirectional
+                                                                      .fromSTEB(
+                                                                          12.0,
+                                                                          0.0,
+                                                                          12.0,
+                                                                          0.0),
+                                                              hidesUnderline:
+                                                                  true,
+                                                              isOverButton:
+                                                                  false,
+                                                              isSearchable:
+                                                                  false,
+                                                              isMultiSelect:
+                                                                  false,
+                                                            );
+                                                          },
+                                                        ),
+                                                        FlutterFlowIconButton(
+                                                          borderRadius: 8.0,
+                                                          buttonSize: 40.0,
                                                           fillColor:
                                                               FlutterFlowTheme.of(
                                                                       context)
-                                                                  .alternate,
-                                                          elevation: 2.0,
-                                                          borderColor: Colors
-                                                              .transparent,
-                                                          borderWidth: 0.0,
-                                                          borderRadius: 8.0,
-                                                          margin:
-                                                              EdgeInsetsDirectional
-                                                                  .fromSTEB(
-                                                                      12.0,
-                                                                      0.0,
-                                                                      12.0,
-                                                                      0.0),
-                                                          hidesUnderline: true,
-                                                          isOverButton: false,
-                                                          isSearchable: false,
-                                                          isMultiSelect: false,
-                                                        );
-                                                      },
-                                                    ),
-                                                    FlutterFlowIconButton(
-                                                      borderRadius: 8.0,
-                                                      buttonSize: 40.0,
-                                                      fillColor:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .primary,
-                                                      icon: Icon(
-                                                        Icons.add_rounded,
-                                                        color:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
+                                                                  .primary,
+                                                          icon: Icon(
+                                                            Icons.add_rounded,
+                                                            color: FlutterFlowTheme
+                                                                    .of(context)
                                                                 .info,
-                                                        size: 24.0,
-                                                      ),
-                                                      onPressed: () async {
-                                                        _model.selectedFunction =
-                                                            await queryFunctionRecordOnce(
-                                                          queryBuilder:
-                                                              (functionRecord) =>
-                                                                  functionRecord
-                                                                      .where(
-                                                            'name',
-                                                            isEqualTo: _model
-                                                                .functionValue,
+                                                            size: 24.0,
                                                           ),
-                                                          singleRecord: true,
-                                                        ).then((s) =>
-                                                                s.firstOrNull);
-                                                        if (_model.functionList
-                                                            .contains(_model
-                                                                .selectedFunction
-                                                                ?.reference)) {
-                                                          await showDialog(
-                                                            context: context,
-                                                            builder:
-                                                                (alertDialogContext) {
-                                                              return AlertDialog(
-                                                                title: Text(
-                                                                    'Função já está na Tarefa.'),
-                                                                content: Text(
-                                                                    'Função ${_model.selectedFunction?.name} já foi incluido na Tarefa.'),
-                                                                actions: [
-                                                                  TextButton(
-                                                                    onPressed: () =>
-                                                                        Navigator.pop(
-                                                                            alertDialogContext),
-                                                                    child: Text(
-                                                                        'Ok'),
-                                                                  ),
-                                                                ],
+                                                          onPressed: () async {
+                                                            _model.selectedFunction =
+                                                                await queryFunctionRecordOnce(
+                                                              queryBuilder:
+                                                                  (functionRecord) =>
+                                                                      functionRecord
+                                                                          .where(
+                                                                'name',
+                                                                isEqualTo: _model
+                                                                    .functionValue,
+                                                              ),
+                                                              singleRecord:
+                                                                  true,
+                                                            ).then((s) => s
+                                                                    .firstOrNull);
+                                                            if (_model
+                                                                .functionList
+                                                                .contains(_model
+                                                                    .selectedFunction
+                                                                    ?.reference)) {
+                                                              await showDialog(
+                                                                context:
+                                                                    context,
+                                                                builder:
+                                                                    (alertDialogContext) {
+                                                                  return AlertDialog(
+                                                                    title: Text(
+                                                                        'Função já está na Tarefa.'),
+                                                                    content: Text(
+                                                                        'Função ${_model.selectedFunction?.name} já foi incluido na Tarefa.'),
+                                                                    actions: [
+                                                                      TextButton(
+                                                                        onPressed:
+                                                                            () =>
+                                                                                Navigator.pop(alertDialogContext),
+                                                                        child: Text(
+                                                                            'Ok'),
+                                                                      ),
+                                                                    ],
+                                                                  );
+                                                                },
                                                               );
-                                                            },
-                                                          );
-                                                        } else {
-                                                          await _model
-                                                              .prompt!.reference
-                                                              .update({
-                                                            ...mapToFirestore(
-                                                              {
-                                                                'functions':
-                                                                    FieldValue
-                                                                        .arrayUnion([
-                                                                  _model
-                                                                      .selectedFunction
-                                                                      ?.reference
-                                                                ]),
-                                                              },
-                                                            ),
-                                                          });
-                                                          _model.addToFunctionList(
-                                                              _model
+                                                            } else {
+                                                              await _model
+                                                                  .prompt!
+                                                                  .reference
+                                                                  .update({
+                                                                ...mapToFirestore(
+                                                                  {
+                                                                    'functions':
+                                                                        FieldValue
+                                                                            .arrayUnion([
+                                                                      _model
+                                                                          .selectedFunction
+                                                                          ?.reference
+                                                                    ]),
+                                                                  },
+                                                                ),
+                                                              });
+                                                              _model.addToFunctionList(_model
                                                                   .selectedFunction!
                                                                   .reference);
-                                                          safeSetState(() {});
-                                                          ScaffoldMessenger.of(
-                                                                  context)
-                                                              .showSnackBar(
-                                                            SnackBar(
-                                                              content: Text(
-                                                                'Função adicionada.',
-                                                                style:
-                                                                    TextStyle(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
-                                                                ),
-                                                              ),
-                                                              duration: Duration(
-                                                                  milliseconds:
-                                                                      4000),
-                                                              backgroundColor:
-                                                                  FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .secondary,
-                                                            ),
-                                                          );
-                                                        }
-
-                                                        safeSetState(() {});
-                                                      },
-                                                    ),
-                                                  ].divide(
-                                                      SizedBox(width: 5.0)),
-                                                ),
-                                                Builder(
-                                                  builder: (context) {
-                                                    final function = _model
-                                                        .functionList
-                                                        .toList();
-
-                                                    return ListView.separated(
-                                                      padding: EdgeInsets.zero,
-                                                      shrinkWrap: true,
-                                                      scrollDirection:
-                                                          Axis.vertical,
-                                                      itemCount:
-                                                          function.length,
-                                                      separatorBuilder: (_,
-                                                              __) =>
-                                                          SizedBox(height: 5.0),
-                                                      itemBuilder: (context,
-                                                          functionIndex) {
-                                                        final functionItem =
-                                                            function[
-                                                                functionIndex];
-                                                        return Opacity(
-                                                          opacity: 0.8,
-                                                          child: StreamBuilder<
-                                                              FunctionRecord>(
-                                                            stream: FunctionRecord
-                                                                .getDocument(
-                                                                    functionItem),
-                                                            builder: (context,
-                                                                snapshot) {
-                                                              // Customize what your widget looks like when it's loading.
-                                                              if (!snapshot
-                                                                  .hasData) {
-                                                                return Center(
-                                                                  child:
-                                                                      SizedBox(
-                                                                    width: 50.0,
-                                                                    height:
-                                                                        50.0,
-                                                                    child:
-                                                                        CircularProgressIndicator(
-                                                                      valueColor:
-                                                                          AlwaysStoppedAnimation<
-                                                                              Color>(
-                                                                        FlutterFlowTheme.of(context)
-                                                                            .primary,
-                                                                      ),
+                                                              safeSetState(
+                                                                  () {});
+                                                              ScaffoldMessenger
+                                                                      .of(context)
+                                                                  .showSnackBar(
+                                                                SnackBar(
+                                                                  content: Text(
+                                                                    'Função adicionada.',
+                                                                    style:
+                                                                        TextStyle(
+                                                                      color: FlutterFlowTheme.of(
+                                                                              context)
+                                                                          .primaryText,
                                                                     ),
                                                                   ),
-                                                                );
-                                                              }
-
-                                                              final containerFunctionRecord =
-                                                                  snapshot
-                                                                      .data!;
-
-                                                              return Container(
-                                                                width: double
-                                                                    .infinity,
-                                                                decoration:
-                                                                    BoxDecoration(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .secondaryBackground,
-                                                                  borderRadius:
-                                                                      BorderRadius
-                                                                          .circular(
-                                                                              8.0),
-                                                                  border: Border
-                                                                      .all(
-                                                                    color: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondary,
-                                                                  ),
+                                                                  duration: Duration(
+                                                                      milliseconds:
+                                                                          4000),
+                                                                  backgroundColor:
+                                                                      FlutterFlowTheme.of(
+                                                                              context)
+                                                                          .secondary,
                                                                 ),
-                                                                child: Align(
-                                                                  alignment:
-                                                                      AlignmentDirectional(
-                                                                          -1.0,
-                                                                          0.0),
-                                                                  child:
-                                                                      Padding(
-                                                                    padding: EdgeInsetsDirectional
-                                                                        .fromSTEB(
+                                                              );
+                                                            }
+
+                                                            safeSetState(() {});
+                                                          },
+                                                        ),
+                                                      ].divide(
+                                                          SizedBox(width: 5.0)),
+                                                    ),
+                                                    Builder(
+                                                      builder: (context) {
+                                                        final function = _model
+                                                            .functionList
+                                                            .toList();
+
+                                                        return ListView
+                                                            .separated(
+                                                          padding:
+                                                              EdgeInsets.zero,
+                                                          shrinkWrap: true,
+                                                          scrollDirection:
+                                                              Axis.vertical,
+                                                          itemCount:
+                                                              function.length,
+                                                          separatorBuilder: (_,
+                                                                  __) =>
+                                                              SizedBox(
+                                                                  height: 5.0),
+                                                          itemBuilder: (context,
+                                                              functionIndex) {
+                                                            final functionItem =
+                                                                function[
+                                                                    functionIndex];
+                                                            return Opacity(
+                                                              opacity: 0.8,
+                                                              child: StreamBuilder<
+                                                                  FunctionRecord>(
+                                                                stream: FunctionRecord
+                                                                    .getDocument(
+                                                                        functionItem),
+                                                                builder: (context,
+                                                                    snapshot) {
+                                                                  // Customize what your widget looks like when it's loading.
+                                                                  if (!snapshot
+                                                                      .hasData) {
+                                                                    return Center(
+                                                                      child:
+                                                                          SizedBox(
+                                                                        width:
+                                                                            50.0,
+                                                                        height:
+                                                                            50.0,
+                                                                        child:
+                                                                            CircularProgressIndicator(
+                                                                          valueColor:
+                                                                              AlwaysStoppedAnimation<Color>(
+                                                                            FlutterFlowTheme.of(context).primary,
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    );
+                                                                  }
+
+                                                                  final containerFunctionRecord =
+                                                                      snapshot
+                                                                          .data!;
+
+                                                                  return Container(
+                                                                    width: double
+                                                                        .infinity,
+                                                                    decoration:
+                                                                        BoxDecoration(
+                                                                      color: FlutterFlowTheme.of(
+                                                                              context)
+                                                                          .secondaryBackground,
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              8.0),
+                                                                      border:
+                                                                          Border
+                                                                              .all(
+                                                                        color: FlutterFlowTheme.of(context)
+                                                                            .secondary,
+                                                                      ),
+                                                                    ),
+                                                                    child:
+                                                                        Align(
+                                                                      alignment:
+                                                                          AlignmentDirectional(
+                                                                              -1.0,
+                                                                              0.0),
+                                                                      child:
+                                                                          Padding(
+                                                                        padding: EdgeInsetsDirectional.fromSTEB(
                                                                             5.0,
                                                                             5.0,
                                                                             5.0,
                                                                             5.0),
-                                                                    child: Row(
-                                                                      mainAxisSize:
-                                                                          MainAxisSize
-                                                                              .min,
-                                                                      crossAxisAlignment:
-                                                                          CrossAxisAlignment
-                                                                              .start,
-                                                                      children: [
-                                                                        Expanded(
-                                                                          child:
-                                                                              Padding(
-                                                                            padding: EdgeInsetsDirectional.fromSTEB(
-                                                                                5.0,
-                                                                                5.0,
-                                                                                5.0,
-                                                                                5.0),
-                                                                            child:
-                                                                                Column(
-                                                                              mainAxisSize: MainAxisSize.max,
-                                                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                                                              children: [
-                                                                                Text(
-                                                                                  containerFunctionRecord.name,
-                                                                                  style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                        font: GoogleFonts.inter(
-                                                                                          fontWeight: FontWeight.w600,
-                                                                                          fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                        ),
-                                                                                        color: FlutterFlowTheme.of(context).primaryText,
-                                                                                        letterSpacing: 0.0,
-                                                                                        fontWeight: FontWeight.w600,
-                                                                                        fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                      ),
-                                                                                ),
-                                                                                Container(
-                                                                                  decoration: BoxDecoration(),
-                                                                                  child: Text(
-                                                                                    containerFunctionRecord.description,
-                                                                                    style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                          font: GoogleFonts.inter(
-                                                                                            fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
+                                                                        child:
+                                                                            Row(
+                                                                          mainAxisSize:
+                                                                              MainAxisSize.min,
+                                                                          crossAxisAlignment:
+                                                                              CrossAxisAlignment.start,
+                                                                          children: [
+                                                                            Expanded(
+                                                                              child: Padding(
+                                                                                padding: EdgeInsetsDirectional.fromSTEB(5.0, 5.0, 5.0, 5.0),
+                                                                                child: Column(
+                                                                                  mainAxisSize: MainAxisSize.max,
+                                                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                                                  children: [
+                                                                                    Text(
+                                                                                      containerFunctionRecord.name,
+                                                                                      style: FlutterFlowTheme.of(context).bodyMedium.override(
+                                                                                            font: GoogleFonts.inter(
+                                                                                              fontWeight: FontWeight.w600,
+                                                                                              fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                            ),
+                                                                                            color: FlutterFlowTheme.of(context).primaryText,
+                                                                                            letterSpacing: 0.0,
+                                                                                            fontWeight: FontWeight.w600,
                                                                                             fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                                           ),
-                                                                                          color: FlutterFlowTheme.of(context).primaryText,
-                                                                                          fontSize: 10.0,
-                                                                                          letterSpacing: 0.0,
-                                                                                          fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
-                                                                                          fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                        ),
-                                                                                  ),
+                                                                                    ),
+                                                                                    Container(
+                                                                                      decoration: BoxDecoration(),
+                                                                                      child: Text(
+                                                                                        containerFunctionRecord.description,
+                                                                                        style: FlutterFlowTheme.of(context).bodyMedium.override(
+                                                                                              font: GoogleFonts.inter(
+                                                                                                fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
+                                                                                                fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                              ),
+                                                                                              color: FlutterFlowTheme.of(context).primaryText,
+                                                                                              fontSize: 10.0,
+                                                                                              letterSpacing: 0.0,
+                                                                                              fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
+                                                                                              fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                            ),
+                                                                                      ),
+                                                                                    ),
+                                                                                  ],
                                                                                 ),
-                                                                              ],
+                                                                              ),
                                                                             ),
-                                                                          ),
-                                                                        ),
-                                                                        InkWell(
-                                                                          splashColor:
-                                                                              Colors.transparent,
-                                                                          focusColor:
-                                                                              Colors.transparent,
-                                                                          hoverColor:
-                                                                              Colors.transparent,
-                                                                          highlightColor:
-                                                                              Colors.transparent,
-                                                                          onTap:
-                                                                              () async {
-                                                                            await _model.prompt!.reference.update({
-                                                                              ...mapToFirestore(
-                                                                                {
-                                                                                  'functions': FieldValue.arrayRemove([
-                                                                                    containerFunctionRecord.reference
-                                                                                  ]),
-                                                                                },
-                                                                              ),
-                                                                            });
-                                                                            _model.removeFromFunctionList(containerFunctionRecord.reference);
-                                                                            safeSetState(() {});
-                                                                            ScaffoldMessenger.of(context).showSnackBar(
-                                                                              SnackBar(
-                                                                                content: Text(
-                                                                                  'Função removida.',
-                                                                                  style: TextStyle(
-                                                                                    color: FlutterFlowTheme.of(context).primaryText,
+                                                                            InkWell(
+                                                                              splashColor: Colors.transparent,
+                                                                              focusColor: Colors.transparent,
+                                                                              hoverColor: Colors.transparent,
+                                                                              highlightColor: Colors.transparent,
+                                                                              onTap: () async {
+                                                                                await _model.prompt!.reference.update({
+                                                                                  ...mapToFirestore(
+                                                                                    {
+                                                                                      'functions': FieldValue.arrayRemove([
+                                                                                        containerFunctionRecord.reference
+                                                                                      ]),
+                                                                                    },
                                                                                   ),
-                                                                                ),
-                                                                                duration: Duration(milliseconds: 4000),
-                                                                                backgroundColor: FlutterFlowTheme.of(context).secondary,
+                                                                                });
+                                                                                _model.removeFromFunctionList(containerFunctionRecord.reference);
+                                                                                safeSetState(() {});
+                                                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                                                  SnackBar(
+                                                                                    content: Text(
+                                                                                      'Função removida.',
+                                                                                      style: TextStyle(
+                                                                                        color: FlutterFlowTheme.of(context).primaryText,
+                                                                                      ),
+                                                                                    ),
+                                                                                    duration: Duration(milliseconds: 4000),
+                                                                                    backgroundColor: FlutterFlowTheme.of(context).secondary,
+                                                                                  ),
+                                                                                );
+                                                                              },
+                                                                              child: Icon(
+                                                                                Icons.delete,
+                                                                                color: FlutterFlowTheme.of(context).primaryText,
+                                                                                size: 24.0,
                                                                               ),
-                                                                            );
-                                                                          },
-                                                                          child:
-                                                                              Icon(
-                                                                            Icons.delete,
-                                                                            color:
-                                                                                FlutterFlowTheme.of(context).primaryText,
-                                                                            size:
-                                                                                24.0,
-                                                                          ),
+                                                                            ),
+                                                                          ],
                                                                         ),
-                                                                      ],
+                                                                      ),
                                                                     ),
-                                                                  ),
-                                                                ),
-                                                              );
-                                                            },
-                                                          ),
+                                                                  );
+                                                                },
+                                                              ),
+                                                            );
+                                                          },
                                                         );
                                                       },
-                                                    );
-                                                  },
+                                                    ),
+                                                  ].divide(
+                                                      SizedBox(height: 16.0)),
                                                 ),
-                                              ].divide(SizedBox(height: 16.0)),
+                                              ),
                                             ),
                                           ),
                                         ),
                                       ),
-                                    ),
                                     FFButtonWidget(
                                       onPressed: () async {
                                         await _model.prompt!.reference

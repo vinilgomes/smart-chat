@@ -11,6 +11,7 @@ export 'choices_struct.dart';
 export 'content_struct.dart';
 export 'content_old_struct.dart';
 export 'delta_struct.dart';
+export 'error_struct.dart';
 export 'files_struct.dart';
 export 'image_url_struct.dart';
 export 'input_file_struct.dart';

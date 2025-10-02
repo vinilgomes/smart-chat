@@ -48,13 +48,15 @@ List<ContentStruct> buildContent(
     return [ContentStruct(type: "text", text: "")];
   }
 
-  if (text != null) {
+  if (text != null && imageUrl == null) {
     contents.add(ContentStruct(type: "text", text: text));
   }
 
   if (imageUrl != null) {
     contents.add(ContentStruct(
-        type: "image_url", imageUrl: ImageUrlStruct(url: imageUrl)));
+        type: "image_url",
+        imageUrl: ImageUrlStruct(url: imageUrl),
+        text: text == null ? "" : text));
   }
 
   return contents;
@@ -358,6 +360,7 @@ dynamic buildResponseJson(
   final List<Map<String, dynamic>> userContent = [
     {"type": "input_text", "text": userPrompt}
   ];
+  print("User Prompt: " + userPrompt);
 
   // Adiciona arquivos ao mesmo bloco de conteúdo
   if (fileIds != null && fileIds.isNotEmpty) {
@@ -369,6 +372,8 @@ dynamic buildResponseJson(
     }
   }
 
+  print("File IDs: " + fileIds.toString());
+
   // Adiciona imagens ao mesmo bloco de conteúdo
   if (imageUrls != null && imageUrls.isNotEmpty) {
     for (final id in imageUrls) {
@@ -378,6 +383,8 @@ dynamic buildResponseJson(
       });
     }
   }
+
+  print("Image URLs: " + imageUrls.toString());
 
   // Adiciona ao input principal
   inputContent.add({
@@ -412,6 +419,7 @@ dynamic buildResponseJson(
 
   if (previousResponseId != null && previousResponseId.isNotEmpty) {
     body["previous_response_id"] = previousResponseId;
+    print("Previous Response Id: " + previousResponseId);
   }
 
   final List<Map<String, dynamic>> tools = [];

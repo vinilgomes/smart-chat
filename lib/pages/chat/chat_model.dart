@@ -113,7 +113,7 @@ class ChatModel extends FlutterFlowModel<ChatWidget> {
   // Stores action output result for [Backend Call - Create Document] action in Container widget.
   MessageRecord? newMessage2Copy;
   // Stores action output result for [Backend Call - API (runFunctionCall)] action in Container widget.
-  ApiCallResponse? apiResult3l0;
+  ApiCallResponse? functionCall2;
   // Stores action output result for [Firestore Query - Query a collection] action in Container widget.
   FunctionRecord? function;
   // Stores action output result for [Backend Call - Create Document] action in Button widget.

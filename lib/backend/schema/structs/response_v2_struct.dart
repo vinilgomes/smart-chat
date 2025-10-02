@@ -11,7 +11,7 @@ class ResponseV2Struct extends FFFirebaseStruct {
   ResponseV2Struct({
     String? id,
     String? status,
-    String? error,
+    ErrorStruct? error,
     List<MessageStruct>? output,
     FirestoreUtilData firestoreUtilData = const FirestoreUtilData(),
   })  : _id = id,
@@ -35,9 +35,13 @@ class ResponseV2Struct extends FFFirebaseStruct {
   bool hasStatus() => _status != null;
 
   // "error" field.
-  String? _error;
-  String get error => _error ?? '';
-  set error(String? val) => _error = val;
+  ErrorStruct? _error;
+  ErrorStruct get error => _error ?? ErrorStruct();
+  set error(ErrorStruct? val) => _error = val;
+
+  void updateError(Function(ErrorStruct) updateFn) {
+    updateFn(_error ??= ErrorStruct());
+  }
 
   bool hasError() => _error != null;
 
@@ -56,7 +60,9 @@ class ResponseV2Struct extends FFFirebaseStruct {
       ResponseV2Struct(
         id: data['id'] as String?,
         status: data['status'] as String?,
-        error: data['error'] as String?,
+        error: data['error'] is ErrorStruct
+            ? data['error']
+            : ErrorStruct.maybeFromMap(data['error']),
         output: getStructList(
           data['output'],
           MessageStruct.fromMap,
@@ -70,7 +76,7 @@ class ResponseV2Struct extends FFFirebaseStruct {
   Map<String, dynamic> toMap() => {
         'id': _id,
         'status': _status,
-        'error': _error,
+        'error': _error?.toMap(),
         'output': _output?.map((e) => e.toMap()).toList(),
       }.withoutNulls;
 
@@ -86,7 +92,7 @@ class ResponseV2Struct extends FFFirebaseStruct {
         ),
         'error': serializeParam(
           _error,
-          ParamType.String,
+          ParamType.DataStruct,
         ),
         'output': serializeParam(
           _output,
@@ -107,10 +113,11 @@ class ResponseV2Struct extends FFFirebaseStruct {
           ParamType.String,
           false,
         ),
-        error: deserializeParam(
+        error: deserializeStructParam(
           data['error'],
-          ParamType.String,
+          ParamType.DataStruct,
           false,
+          structBuilder: ErrorStruct.fromSerializableMap,
         ),
         output: deserializeStructParam<MessageStruct>(
           data['output'],
@@ -140,7 +147,7 @@ class ResponseV2Struct extends FFFirebaseStruct {
 ResponseV2Struct createResponseV2Struct({
   String? id,
   String? status,
-  String? error,
+  ErrorStruct? error,
   Map<String, dynamic> fieldValues = const {},
   bool clearUnsetFields = true,
   bool create = false,
@@ -149,7 +156,7 @@ ResponseV2Struct createResponseV2Struct({
     ResponseV2Struct(
       id: id,
       status: status,
-      error: error,
+      error: error ?? (clearUnsetFields ? ErrorStruct() : null),
       firestoreUtilData: FirestoreUtilData(
         clearUnsetFields: clearUnsetFields,
         create: create,
@@ -204,6 +211,14 @@ Map<String, dynamic> getResponseV2FirestoreData(
     return {};
   }
   final firestoreData = mapToFirestore(responseV2.toMap());
+
+  // Handle nested data for "error" field.
+  addErrorStructData(
+    firestoreData,
+    responseV2.hasError() ? responseV2.error : null,
+    'error',
+    forFieldValue,
+  );
 
   // Add any Firestore field values
   responseV2.firestoreUtilData.fieldValues

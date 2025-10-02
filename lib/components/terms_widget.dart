@@ -3,18 +3,18 @@ import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'privacy_model.dart';
-export 'privacy_model.dart';
+import 'terms_model.dart';
+export 'terms_model.dart';
 
-class PrivacyWidget extends StatefulWidget {
-  const PrivacyWidget({super.key});
+class TermsWidget extends StatefulWidget {
+  const TermsWidget({super.key});
 
   @override
-  State<PrivacyWidget> createState() => _PrivacyWidgetState();
+  State<TermsWidget> createState() => _TermsWidgetState();
 }
 
-class _PrivacyWidgetState extends State<PrivacyWidget> {
-  late PrivacyModel _model;
+class _TermsWidgetState extends State<TermsWidget> {
+  late TermsModel _model;
 
   @override
   void setState(VoidCallback callback) {
@@ -25,7 +25,7 @@ class _PrivacyWidgetState extends State<PrivacyWidget> {
   @override
   void initState() {
     super.initState();
-    _model = createModel(context, () => PrivacyModel());
+    _model = createModel(context, () => TermsModel());
 
     WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
   }
@@ -62,36 +62,40 @@ class _PrivacyWidgetState extends State<PrivacyWidget> {
                     children: [
                       Align(
                         alignment: AlignmentDirectional(0.0, 0.0),
-                        child: InkWell(
-                          splashColor: Colors.transparent,
-                          focusColor: Colors.transparent,
-                          hoverColor: Colors.transparent,
-                          highlightColor: Colors.transparent,
-                          onTap: () async {
-                            context.pushNamed(
-                              ChooseYourInstanceWidget.routeName,
-                              pathParameters: {
-                                'instance': serializeParam(
-                                  '',
-                                  ParamType.String,
-                                ),
-                              }.withoutNulls,
-                              extra: <String, dynamic>{
-                                kTransitionInfoKey: TransitionInfo(
-                                  hasTransition: true,
-                                  transitionType: PageTransitionType.fade,
-                                  duration: Duration(milliseconds: 200),
-                                ),
-                              },
-                            );
-                          },
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(8.0),
-                            child: Image.asset(
-                              'assets/images/smart-chat-logo.png',
-                              width: 180.0,
-                              height: 180.0,
-                              fit: BoxFit.cover,
+                        child: Padding(
+                          padding: EdgeInsetsDirectional.fromSTEB(
+                              50.0, 0.0, 0.0, 0.0),
+                          child: InkWell(
+                            splashColor: Colors.transparent,
+                            focusColor: Colors.transparent,
+                            hoverColor: Colors.transparent,
+                            highlightColor: Colors.transparent,
+                            onTap: () async {
+                              context.pushNamed(
+                                ChooseYourInstanceWidget.routeName,
+                                pathParameters: {
+                                  'instance': serializeParam(
+                                    '',
+                                    ParamType.String,
+                                  ),
+                                }.withoutNulls,
+                                extra: <String, dynamic>{
+                                  kTransitionInfoKey: TransitionInfo(
+                                    hasTransition: true,
+                                    transitionType: PageTransitionType.fade,
+                                    duration: Duration(milliseconds: 200),
+                                  ),
+                                },
+                              );
+                            },
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(8.0),
+                              child: Image.asset(
+                                'assets/images/smart-chat-logo.png',
+                                width: 180.0,
+                                height: 180.0,
+                                fit: BoxFit.cover,
+                              ),
                             ),
                           ),
                         ),
@@ -119,7 +123,7 @@ class _PrivacyWidgetState extends State<PrivacyWidget> {
               ],
             ),
             Text(
-              'Política de Privacidade',
+              'Termos de Uso',
               style: FlutterFlowTheme.of(context).bodyMedium.override(
                     font: GoogleFonts.urbanist(
                       fontWeight:

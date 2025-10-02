@@ -1,6 +1,6 @@
 import '/auth/firebase_auth/auth_util.dart';
 import '/backend/backend.dart';
-import '/components/privacy_widget.dart';
+import '/components/terms_widget.dart';
 import '/flutter_flow/flutter_flow_animations.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -636,7 +636,7 @@ class _CreateAccountWidgetState extends State<CreateAccountWidget>
                                                       padding: MediaQuery
                                                           .viewInsetsOf(
                                                               context),
-                                                      child: PrivacyWidget(),
+                                                      child: TermsWidget(),
                                                     ),
                                                   );
                                                 },

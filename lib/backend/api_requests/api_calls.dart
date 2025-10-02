@@ -4071,8 +4071,6 @@ class SendMailCall {
 
 class RunFunctionCallCall {
   Future<ApiCallResponse> call({
-    String? method = '',
-    String? methodName = '',
     dynamic methodBodyParametersJson,
     String? workflowId = '',
   }) async {
@@ -4081,8 +4079,6 @@ class RunFunctionCallCall {
     final methodBodyParameters = _serializeJson(methodBodyParametersJson);
     final ffApiRequestBody = '''
 {
-  "method": "${escapeStringForJson(method)}",
-  "methodName": "${escapeStringForJson(methodName)}",
   "methodBodyParameters": ${methodBodyParameters},
   "workflowId": "${escapeStringForJson(workflowId)}"
 }''';

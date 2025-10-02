@@ -1,8 +1,8 @@
 import '/flutter_flow/flutter_flow_util.dart';
-import 'privacy_widget.dart' show PrivacyWidget;
+import 'terms_widget.dart' show TermsWidget;
 import 'package:flutter/material.dart';
 
-class PrivacyModel extends FlutterFlowModel<PrivacyWidget> {
+class TermsModel extends FlutterFlowModel<TermsWidget> {
   @override
   void initState(BuildContext context) {}
 

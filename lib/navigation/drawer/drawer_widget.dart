@@ -859,6 +859,11 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                             temperature: 1.0,
                             topP: 1.0,
                             isPublished: true,
+                            promptDescription: '',
+                            systemPrompt: '',
+                            instructions: '',
+                            chatWelcomeMessage: '',
+                            webSearch: false,
                           ));
                           _model.newprompt = PromptRecord.getDocumentFromData(
                               createPromptRecordData(
@@ -878,6 +883,11 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                                 temperature: 1.0,
                                 topP: 1.0,
                                 isPublished: true,
+                                promptDescription: '',
+                                systemPrompt: '',
+                                instructions: '',
+                                chatWelcomeMessage: '',
+                                webSearch: false,
                               ),
                               promptRecordReference);
                           _model.vectorstore = await OpenAIAPIGroup

@@ -11,11 +11,9 @@ class ResponseStreamingStruct extends FFFirebaseStruct {
   ResponseStreamingStruct({
     String? type,
     ResponseV2Struct? response,
-    UsageStruct? usage,
     FirestoreUtilData firestoreUtilData = const FirestoreUtilData(),
   })  : _type = type,
         _response = response,
-        _usage = usage,
         super(firestoreUtilData);
 
   // "type" field.
@@ -36,26 +34,12 @@ class ResponseStreamingStruct extends FFFirebaseStruct {
 
   bool hasResponse() => _response != null;
 
-  // "usage" field.
-  UsageStruct? _usage;
-  UsageStruct get usage => _usage ?? UsageStruct();
-  set usage(UsageStruct? val) => _usage = val;
-
-  void updateUsage(Function(UsageStruct) updateFn) {
-    updateFn(_usage ??= UsageStruct());
-  }
-
-  bool hasUsage() => _usage != null;
-
   static ResponseStreamingStruct fromMap(Map<String, dynamic> data) =>
       ResponseStreamingStruct(
         type: data['type'] as String?,
         response: data['response'] is ResponseV2Struct
             ? data['response']
             : ResponseV2Struct.maybeFromMap(data['response']),
-        usage: data['usage'] is UsageStruct
-            ? data['usage']
-            : UsageStruct.maybeFromMap(data['usage']),
       );
 
   static ResponseStreamingStruct? maybeFromMap(dynamic data) => data is Map
@@ -65,7 +49,6 @@ class ResponseStreamingStruct extends FFFirebaseStruct {
   Map<String, dynamic> toMap() => {
         'type': _type,
         'response': _response?.toMap(),
-        'usage': _usage?.toMap(),
       }.withoutNulls;
 
   @override
@@ -76,10 +59,6 @@ class ResponseStreamingStruct extends FFFirebaseStruct {
         ),
         'response': serializeParam(
           _response,
-          ParamType.DataStruct,
-        ),
-        'usage': serializeParam(
-          _usage,
           ParamType.DataStruct,
         ),
       }.withoutNulls;
@@ -98,12 +77,6 @@ class ResponseStreamingStruct extends FFFirebaseStruct {
           false,
           structBuilder: ResponseV2Struct.fromSerializableMap,
         ),
-        usage: deserializeStructParam(
-          data['usage'],
-          ParamType.DataStruct,
-          false,
-          structBuilder: UsageStruct.fromSerializableMap,
-        ),
       );
 
   @override
@@ -113,18 +86,16 @@ class ResponseStreamingStruct extends FFFirebaseStruct {
   bool operator ==(Object other) {
     return other is ResponseStreamingStruct &&
         type == other.type &&
-        response == other.response &&
-        usage == other.usage;
+        response == other.response;
   }
 
   @override
-  int get hashCode => const ListEquality().hash([type, response, usage]);
+  int get hashCode => const ListEquality().hash([type, response]);
 }
 
 ResponseStreamingStruct createResponseStreamingStruct({
   String? type,
   ResponseV2Struct? response,
-  UsageStruct? usage,
   Map<String, dynamic> fieldValues = const {},
   bool clearUnsetFields = true,
   bool create = false,
@@ -133,7 +104,6 @@ ResponseStreamingStruct createResponseStreamingStruct({
     ResponseStreamingStruct(
       type: type,
       response: response ?? (clearUnsetFields ? ResponseV2Struct() : null),
-      usage: usage ?? (clearUnsetFields ? UsageStruct() : null),
       firestoreUtilData: FirestoreUtilData(
         clearUnsetFields: clearUnsetFields,
         create: create,
@@ -196,14 +166,6 @@ Map<String, dynamic> getResponseStreamingFirestoreData(
     firestoreData,
     responseStreaming.hasResponse() ? responseStreaming.response : null,
     'response',
-    forFieldValue,
-  );
-
-  // Handle nested data for "usage" field.
-  addUsageStructData(
-    firestoreData,
-    responseStreaming.hasUsage() ? responseStreaming.usage : null,
-    'usage',
     forFieldValue,
   );
 

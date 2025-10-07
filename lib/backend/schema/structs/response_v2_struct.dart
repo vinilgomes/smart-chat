@@ -13,11 +13,13 @@ class ResponseV2Struct extends FFFirebaseStruct {
     String? status,
     ErrorStruct? error,
     List<MessageStruct>? output,
+    UsageStruct? usage,
     FirestoreUtilData firestoreUtilData = const FirestoreUtilData(),
   })  : _id = id,
         _status = status,
         _error = error,
         _output = output,
+        _usage = usage,
         super(firestoreUtilData);
 
   // "id" field.
@@ -56,6 +58,17 @@ class ResponseV2Struct extends FFFirebaseStruct {
 
   bool hasOutput() => _output != null;
 
+  // "usage" field.
+  UsageStruct? _usage;
+  UsageStruct get usage => _usage ?? UsageStruct();
+  set usage(UsageStruct? val) => _usage = val;
+
+  void updateUsage(Function(UsageStruct) updateFn) {
+    updateFn(_usage ??= UsageStruct());
+  }
+
+  bool hasUsage() => _usage != null;
+
   static ResponseV2Struct fromMap(Map<String, dynamic> data) =>
       ResponseV2Struct(
         id: data['id'] as String?,
@@ -67,6 +80,9 @@ class ResponseV2Struct extends FFFirebaseStruct {
           data['output'],
           MessageStruct.fromMap,
         ),
+        usage: data['usage'] is UsageStruct
+            ? data['usage']
+            : UsageStruct.maybeFromMap(data['usage']),
       );
 
   static ResponseV2Struct? maybeFromMap(dynamic data) => data is Map
@@ -78,6 +94,7 @@ class ResponseV2Struct extends FFFirebaseStruct {
         'status': _status,
         'error': _error?.toMap(),
         'output': _output?.map((e) => e.toMap()).toList(),
+        'usage': _usage?.toMap(),
       }.withoutNulls;
 
   @override
@@ -98,6 +115,10 @@ class ResponseV2Struct extends FFFirebaseStruct {
           _output,
           ParamType.DataStruct,
           isList: true,
+        ),
+        'usage': serializeParam(
+          _usage,
+          ParamType.DataStruct,
         ),
       }.withoutNulls;
 
@@ -125,6 +146,12 @@ class ResponseV2Struct extends FFFirebaseStruct {
           true,
           structBuilder: MessageStruct.fromSerializableMap,
         ),
+        usage: deserializeStructParam(
+          data['usage'],
+          ParamType.DataStruct,
+          false,
+          structBuilder: UsageStruct.fromSerializableMap,
+        ),
       );
 
   @override
@@ -137,17 +164,20 @@ class ResponseV2Struct extends FFFirebaseStruct {
         id == other.id &&
         status == other.status &&
         error == other.error &&
-        listEquality.equals(output, other.output);
+        listEquality.equals(output, other.output) &&
+        usage == other.usage;
   }
 
   @override
-  int get hashCode => const ListEquality().hash([id, status, error, output]);
+  int get hashCode =>
+      const ListEquality().hash([id, status, error, output, usage]);
 }
 
 ResponseV2Struct createResponseV2Struct({
   String? id,
   String? status,
   ErrorStruct? error,
+  UsageStruct? usage,
   Map<String, dynamic> fieldValues = const {},
   bool clearUnsetFields = true,
   bool create = false,
@@ -157,6 +187,7 @@ ResponseV2Struct createResponseV2Struct({
       id: id,
       status: status,
       error: error ?? (clearUnsetFields ? ErrorStruct() : null),
+      usage: usage ?? (clearUnsetFields ? UsageStruct() : null),
       firestoreUtilData: FirestoreUtilData(
         clearUnsetFields: clearUnsetFields,
         create: create,
@@ -217,6 +248,14 @@ Map<String, dynamic> getResponseV2FirestoreData(
     firestoreData,
     responseV2.hasError() ? responseV2.error : null,
     'error',
+    forFieldValue,
+  );
+
+  // Handle nested data for "usage" field.
+  addUsageStructData(
+    firestoreData,
+    responseV2.hasUsage() ? responseV2.usage : null,
+    'usage',
     forFieldValue,
   );
 

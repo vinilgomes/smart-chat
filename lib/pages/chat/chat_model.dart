@@ -53,6 +53,8 @@ class ChatModel extends FlutterFlowModel<ChatWidget> {
 
   bool isProcessingAudio = false;
 
+  String responseMessage = ' ';
+
   ///  State fields for stateful widgets in this page.
 
   // Stores action output result for [Firestore Query - Query a collection] action in Chat widget.

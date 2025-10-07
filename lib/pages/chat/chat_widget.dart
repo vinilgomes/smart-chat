@@ -1845,7 +1845,7 @@ class _ChatWidgetState extends State<ChatWidget> with TickerProviderStateMixin {
                                                                             ..responseId =
                                                                                 ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)?.response.id
                                                                             ..text =
-                                                                                'Ótimo. Agora já estou conseguindo processar sua mensagem. Já trago novidades,',
+                                                                                '',
                                                                         )
                                                                         ..responseId = ResponseStreamingStruct.maybeFromMap(onMessageInput.serverSentEvent.jsonData)
                                                                             ?.response

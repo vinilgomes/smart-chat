@@ -211,7 +211,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                                         child: Icon(
                                           Icons.edit,
                                           color: FlutterFlowTheme.of(context)
-                                              .primaryText,
+                                              .secondary,
                                           size: 16.0,
                                         ),
                                       ),

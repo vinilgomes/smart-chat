@@ -4048,6 +4048,12 @@ class _InstanceConfigWidgetState extends State<InstanceConfigWidget> {
                                                               }
                                                             }
 
+                                                            safeSetState(() {
+                                                              _model
+                                                                  .emailTextController
+                                                                  ?.clear();
+                                                            });
+
                                                             safeSetState(() {});
                                                           },
                                                         ),
